@@ -1,0 +1,854 @@
+type JeuHistory @aws_iam @aws_api_key {
+  id: ID!
+  jeuId: ID
+  userID: ID!
+  pts: Int
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TJeu @aws_iam @aws_api_key {
+  id: ID!
+  text: String
+  QJeus(filter: ModelQJeuFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQJeuConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type AJeu @aws_iam @aws_api_key {
+  id: ID!
+  text: String
+  qjeus(filter: ModelQJeuAJeuFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQJeuAJeuConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type QJeu @aws_iam @aws_api_key {
+  id: ID!
+  text: String
+  AJeus(filter: ModelQJeuAJeuFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQJeuAJeuConnection
+  AcceptedAJeu: AJeu
+  tjeuID: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  qJeuAcceptedAJeuId: ID
+}
+
+type QuizHistory @aws_iam @aws_api_key {
+  id: ID!
+  quizId: ID
+  userID: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type User @aws_iam @aws_api_key {
+  id: ID!
+  quizCount: Int
+  QuizHistories(filter: ModelQuizHistoryFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQuizHistoryConnection
+  jeuPoints: Int
+  JeuHistories(filter: ModelJeuHistoryFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelJeuHistoryConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Theme @aws_iam @aws_api_key {
+  id: ID!
+  text: String
+  Questions(filter: ModelQuestionFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQuestionConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Answer @aws_iam @aws_api_key {
+  id: ID!
+  text: String
+  questions(filter: ModelQuestionAnswerFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQuestionAnswerConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Question @aws_iam @aws_api_key {
+  id: ID!
+  text: String
+  Answers(filter: ModelQuestionAnswerFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelQuestionAnswerConnection
+  AcceptedAnswer: Answer
+  themeID: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  questionAcceptedAnswerId: ID
+}
+
+type QJeuAJeu @aws_iam @aws_api_key {
+  id: ID!
+  aJeuId: ID!
+  qJeuId: ID!
+  aJeu: AJeu!
+  qJeu: QJeu!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type QuestionAnswer @aws_iam @aws_api_key {
+  id: ID!
+  answerId: ID!
+  questionId: ID!
+  answer: Answer!
+  question: Question!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelJeuHistoryConnection @aws_api_key @aws_iam {
+  items: [JeuHistory]!
+  nextToken: String
+}
+
+input ModelJeuHistoryFilterInput {
+  id: ModelIDInput
+  jeuId: ModelIDInput
+  userID: ModelIDInput
+  pts: ModelIntInput
+  and: [ModelJeuHistoryFilterInput]
+  or: [ModelJeuHistoryFilterInput]
+  not: ModelJeuHistoryFilterInput
+}
+
+type Query {
+  getJeuHistory(id: ID!): JeuHistory @aws_api_key @aws_iam
+  listJeuHistories(filter: ModelJeuHistoryFilterInput, limit: Int, nextToken: String): ModelJeuHistoryConnection @aws_api_key @aws_iam
+  jeuHistoriesByUserID(userID: ID!, sortDirection: ModelSortDirection, filter: ModelJeuHistoryFilterInput, limit: Int, nextToken: String): ModelJeuHistoryConnection @aws_api_key @aws_iam
+  getTJeu(id: ID!): TJeu @aws_api_key @aws_iam
+  listTJeus(filter: ModelTJeuFilterInput, limit: Int, nextToken: String): ModelTJeuConnection @aws_api_key @aws_iam
+  getAJeu(id: ID!): AJeu @aws_api_key @aws_iam
+  listAJeus(filter: ModelAJeuFilterInput, limit: Int, nextToken: String): ModelAJeuConnection @aws_api_key @aws_iam
+  getQJeu(id: ID!): QJeu @aws_api_key @aws_iam
+  listQJeus(filter: ModelQJeuFilterInput, limit: Int, nextToken: String): ModelQJeuConnection @aws_api_key @aws_iam
+  qJeusByTjeuID(tjeuID: ID!, sortDirection: ModelSortDirection, filter: ModelQJeuFilterInput, limit: Int, nextToken: String): ModelQJeuConnection @aws_api_key @aws_iam
+  getQuizHistory(id: ID!): QuizHistory @aws_api_key @aws_iam
+  listQuizHistories(filter: ModelQuizHistoryFilterInput, limit: Int, nextToken: String): ModelQuizHistoryConnection @aws_api_key @aws_iam
+  quizHistoriesByUserID(userID: ID!, sortDirection: ModelSortDirection, filter: ModelQuizHistoryFilterInput, limit: Int, nextToken: String): ModelQuizHistoryConnection @aws_api_key @aws_iam
+  getUser(id: ID!): User @aws_api_key @aws_iam
+  listUsers(filter: ModelUserFilterInput, limit: Int, nextToken: String): ModelUserConnection @aws_api_key @aws_iam
+  getTheme(id: ID!): Theme @aws_api_key @aws_iam
+  listThemes(filter: ModelThemeFilterInput, limit: Int, nextToken: String): ModelThemeConnection @aws_api_key @aws_iam
+  getAnswer(id: ID!): Answer @aws_api_key @aws_iam
+  listAnswers(filter: ModelAnswerFilterInput, limit: Int, nextToken: String): ModelAnswerConnection @aws_api_key @aws_iam
+  getQuestion(id: ID!): Question @aws_api_key @aws_iam
+  listQuestions(filter: ModelQuestionFilterInput, limit: Int, nextToken: String): ModelQuestionConnection @aws_api_key @aws_iam
+  questionsByThemeID(themeID: ID!, sortDirection: ModelSortDirection, filter: ModelQuestionFilterInput, limit: Int, nextToken: String): ModelQuestionConnection @aws_api_key @aws_iam
+  getQJeuAJeu(id: ID!): QJeuAJeu @aws_api_key @aws_iam
+  listQJeuAJeus(filter: ModelQJeuAJeuFilterInput, limit: Int, nextToken: String): ModelQJeuAJeuConnection @aws_api_key @aws_iam
+  qJeuAJeusByAJeuId(aJeuId: ID!, sortDirection: ModelSortDirection, filter: ModelQJeuAJeuFilterInput, limit: Int, nextToken: String): ModelQJeuAJeuConnection @aws_api_key @aws_iam
+  qJeuAJeusByQJeuId(qJeuId: ID!, sortDirection: ModelSortDirection, filter: ModelQJeuAJeuFilterInput, limit: Int, nextToken: String): ModelQJeuAJeuConnection @aws_api_key @aws_iam
+  getQuestionAnswer(id: ID!): QuestionAnswer @aws_api_key @aws_iam
+  listQuestionAnswers(filter: ModelQuestionAnswerFilterInput, limit: Int, nextToken: String): ModelQuestionAnswerConnection @aws_api_key @aws_iam
+  questionAnswersByAnswerId(answerId: ID!, sortDirection: ModelSortDirection, filter: ModelQuestionAnswerFilterInput, limit: Int, nextToken: String): ModelQuestionAnswerConnection @aws_api_key @aws_iam
+  questionAnswersByQuestionId(questionId: ID!, sortDirection: ModelSortDirection, filter: ModelQuestionAnswerFilterInput, limit: Int, nextToken: String): ModelQuestionAnswerConnection @aws_api_key @aws_iam
+}
+
+input ModelJeuHistoryConditionInput {
+  jeuId: ModelIDInput
+  userID: ModelIDInput
+  pts: ModelIntInput
+  and: [ModelJeuHistoryConditionInput]
+  or: [ModelJeuHistoryConditionInput]
+  not: ModelJeuHistoryConditionInput
+}
+
+input CreateJeuHistoryInput {
+  id: ID
+  jeuId: ID
+  userID: ID!
+  pts: Int
+}
+
+input UpdateJeuHistoryInput {
+  id: ID!
+  jeuId: ID
+  userID: ID
+  pts: Int
+}
+
+input DeleteJeuHistoryInput {
+  id: ID!
+}
+
+type Mutation {
+  createJeuHistory(input: CreateJeuHistoryInput!, condition: ModelJeuHistoryConditionInput): JeuHistory @aws_api_key @aws_iam
+  updateJeuHistory(input: UpdateJeuHistoryInput!, condition: ModelJeuHistoryConditionInput): JeuHistory @aws_api_key @aws_iam
+  deleteJeuHistory(input: DeleteJeuHistoryInput!, condition: ModelJeuHistoryConditionInput): JeuHistory @aws_api_key @aws_iam
+  createTJeu(input: CreateTJeuInput!, condition: ModelTJeuConditionInput): TJeu @aws_api_key @aws_iam
+  updateTJeu(input: UpdateTJeuInput!, condition: ModelTJeuConditionInput): TJeu @aws_api_key @aws_iam
+  deleteTJeu(input: DeleteTJeuInput!, condition: ModelTJeuConditionInput): TJeu @aws_api_key @aws_iam
+  createAJeu(input: CreateAJeuInput!, condition: ModelAJeuConditionInput): AJeu @aws_api_key @aws_iam
+  updateAJeu(input: UpdateAJeuInput!, condition: ModelAJeuConditionInput): AJeu @aws_api_key @aws_iam
+  deleteAJeu(input: DeleteAJeuInput!, condition: ModelAJeuConditionInput): AJeu @aws_api_key @aws_iam
+  createQJeu(input: CreateQJeuInput!, condition: ModelQJeuConditionInput): QJeu @aws_api_key @aws_iam
+  updateQJeu(input: UpdateQJeuInput!, condition: ModelQJeuConditionInput): QJeu @aws_api_key @aws_iam
+  deleteQJeu(input: DeleteQJeuInput!, condition: ModelQJeuConditionInput): QJeu @aws_api_key @aws_iam
+  createQuizHistory(input: CreateQuizHistoryInput!, condition: ModelQuizHistoryConditionInput): QuizHistory @aws_api_key @aws_iam
+  updateQuizHistory(input: UpdateQuizHistoryInput!, condition: ModelQuizHistoryConditionInput): QuizHistory @aws_api_key @aws_iam
+  deleteQuizHistory(input: DeleteQuizHistoryInput!, condition: ModelQuizHistoryConditionInput): QuizHistory @aws_api_key @aws_iam
+  createUser(input: CreateUserInput!, condition: ModelUserConditionInput): User @aws_api_key @aws_iam
+  updateUser(input: UpdateUserInput!, condition: ModelUserConditionInput): User @aws_api_key @aws_iam
+  deleteUser(input: DeleteUserInput!, condition: ModelUserConditionInput): User @aws_api_key @aws_iam
+  createTheme(input: CreateThemeInput!, condition: ModelThemeConditionInput): Theme @aws_api_key @aws_iam
+  updateTheme(input: UpdateThemeInput!, condition: ModelThemeConditionInput): Theme @aws_api_key @aws_iam
+  deleteTheme(input: DeleteThemeInput!, condition: ModelThemeConditionInput): Theme @aws_api_key @aws_iam
+  createAnswer(input: CreateAnswerInput!, condition: ModelAnswerConditionInput): Answer @aws_api_key @aws_iam
+  updateAnswer(input: UpdateAnswerInput!, condition: ModelAnswerConditionInput): Answer @aws_api_key @aws_iam
+  deleteAnswer(input: DeleteAnswerInput!, condition: ModelAnswerConditionInput): Answer @aws_api_key @aws_iam
+  createQuestion(input: CreateQuestionInput!, condition: ModelQuestionConditionInput): Question @aws_api_key @aws_iam
+  updateQuestion(input: UpdateQuestionInput!, condition: ModelQuestionConditionInput): Question @aws_api_key @aws_iam
+  deleteQuestion(input: DeleteQuestionInput!, condition: ModelQuestionConditionInput): Question @aws_api_key @aws_iam
+  createQJeuAJeu(input: CreateQJeuAJeuInput!, condition: ModelQJeuAJeuConditionInput): QJeuAJeu @aws_api_key @aws_iam
+  updateQJeuAJeu(input: UpdateQJeuAJeuInput!, condition: ModelQJeuAJeuConditionInput): QJeuAJeu @aws_api_key @aws_iam
+  deleteQJeuAJeu(input: DeleteQJeuAJeuInput!, condition: ModelQJeuAJeuConditionInput): QJeuAJeu @aws_api_key @aws_iam
+  createQuestionAnswer(input: CreateQuestionAnswerInput!, condition: ModelQuestionAnswerConditionInput): QuestionAnswer @aws_api_key @aws_iam
+  updateQuestionAnswer(input: UpdateQuestionAnswerInput!, condition: ModelQuestionAnswerConditionInput): QuestionAnswer @aws_api_key @aws_iam
+  deleteQuestionAnswer(input: DeleteQuestionAnswerInput!, condition: ModelQuestionAnswerConditionInput): QuestionAnswer @aws_api_key @aws_iam
+}
+
+input ModelSubscriptionJeuHistoryFilterInput {
+  id: ModelSubscriptionIDInput
+  jeuId: ModelSubscriptionIDInput
+  userID: ModelSubscriptionIDInput
+  pts: ModelSubscriptionIntInput
+  and: [ModelSubscriptionJeuHistoryFilterInput]
+  or: [ModelSubscriptionJeuHistoryFilterInput]
+}
+
+type Subscription {
+  onCreateJeuHistory(filter: ModelSubscriptionJeuHistoryFilterInput): JeuHistory @aws_subscribe(mutations: ["createJeuHistory"]) @aws_api_key @aws_iam
+  onUpdateJeuHistory(filter: ModelSubscriptionJeuHistoryFilterInput): JeuHistory @aws_subscribe(mutations: ["updateJeuHistory"]) @aws_api_key @aws_iam
+  onDeleteJeuHistory(filter: ModelSubscriptionJeuHistoryFilterInput): JeuHistory @aws_subscribe(mutations: ["deleteJeuHistory"]) @aws_api_key @aws_iam
+  onCreateTJeu(filter: ModelSubscriptionTJeuFilterInput): TJeu @aws_subscribe(mutations: ["createTJeu"]) @aws_api_key @aws_iam
+  onUpdateTJeu(filter: ModelSubscriptionTJeuFilterInput): TJeu @aws_subscribe(mutations: ["updateTJeu"]) @aws_api_key @aws_iam
+  onDeleteTJeu(filter: ModelSubscriptionTJeuFilterInput): TJeu @aws_subscribe(mutations: ["deleteTJeu"]) @aws_api_key @aws_iam
+  onCreateAJeu(filter: ModelSubscriptionAJeuFilterInput): AJeu @aws_subscribe(mutations: ["createAJeu"]) @aws_api_key @aws_iam
+  onUpdateAJeu(filter: ModelSubscriptionAJeuFilterInput): AJeu @aws_subscribe(mutations: ["updateAJeu"]) @aws_api_key @aws_iam
+  onDeleteAJeu(filter: ModelSubscriptionAJeuFilterInput): AJeu @aws_subscribe(mutations: ["deleteAJeu"]) @aws_api_key @aws_iam
+  onCreateQJeu(filter: ModelSubscriptionQJeuFilterInput): QJeu @aws_subscribe(mutations: ["createQJeu"]) @aws_api_key @aws_iam
+  onUpdateQJeu(filter: ModelSubscriptionQJeuFilterInput): QJeu @aws_subscribe(mutations: ["updateQJeu"]) @aws_api_key @aws_iam
+  onDeleteQJeu(filter: ModelSubscriptionQJeuFilterInput): QJeu @aws_subscribe(mutations: ["deleteQJeu"]) @aws_api_key @aws_iam
+  onCreateQuizHistory(filter: ModelSubscriptionQuizHistoryFilterInput): QuizHistory @aws_subscribe(mutations: ["createQuizHistory"]) @aws_api_key @aws_iam
+  onUpdateQuizHistory(filter: ModelSubscriptionQuizHistoryFilterInput): QuizHistory @aws_subscribe(mutations: ["updateQuizHistory"]) @aws_api_key @aws_iam
+  onDeleteQuizHistory(filter: ModelSubscriptionQuizHistoryFilterInput): QuizHistory @aws_subscribe(mutations: ["deleteQuizHistory"]) @aws_api_key @aws_iam
+  onCreateUser(filter: ModelSubscriptionUserFilterInput): User @aws_subscribe(mutations: ["createUser"]) @aws_api_key @aws_iam
+  onUpdateUser(filter: ModelSubscriptionUserFilterInput): User @aws_subscribe(mutations: ["updateUser"]) @aws_api_key @aws_iam
+  onDeleteUser(filter: ModelSubscriptionUserFilterInput): User @aws_subscribe(mutations: ["deleteUser"]) @aws_api_key @aws_iam
+  onCreateTheme(filter: ModelSubscriptionThemeFilterInput): Theme @aws_subscribe(mutations: ["createTheme"]) @aws_api_key @aws_iam
+  onUpdateTheme(filter: ModelSubscriptionThemeFilterInput): Theme @aws_subscribe(mutations: ["updateTheme"]) @aws_api_key @aws_iam
+  onDeleteTheme(filter: ModelSubscriptionThemeFilterInput): Theme @aws_subscribe(mutations: ["deleteTheme"]) @aws_api_key @aws_iam
+  onCreateAnswer(filter: ModelSubscriptionAnswerFilterInput): Answer @aws_subscribe(mutations: ["createAnswer"]) @aws_api_key @aws_iam
+  onUpdateAnswer(filter: ModelSubscriptionAnswerFilterInput): Answer @aws_subscribe(mutations: ["updateAnswer"]) @aws_api_key @aws_iam
+  onDeleteAnswer(filter: ModelSubscriptionAnswerFilterInput): Answer @aws_subscribe(mutations: ["deleteAnswer"]) @aws_api_key @aws_iam
+  onCreateQuestion(filter: ModelSubscriptionQuestionFilterInput): Question @aws_subscribe(mutations: ["createQuestion"]) @aws_api_key @aws_iam
+  onUpdateQuestion(filter: ModelSubscriptionQuestionFilterInput): Question @aws_subscribe(mutations: ["updateQuestion"]) @aws_api_key @aws_iam
+  onDeleteQuestion(filter: ModelSubscriptionQuestionFilterInput): Question @aws_subscribe(mutations: ["deleteQuestion"]) @aws_api_key @aws_iam
+  onCreateQJeuAJeu(filter: ModelSubscriptionQJeuAJeuFilterInput): QJeuAJeu @aws_subscribe(mutations: ["createQJeuAJeu"]) @aws_api_key @aws_iam
+  onUpdateQJeuAJeu(filter: ModelSubscriptionQJeuAJeuFilterInput): QJeuAJeu @aws_subscribe(mutations: ["updateQJeuAJeu"]) @aws_api_key @aws_iam
+  onDeleteQJeuAJeu(filter: ModelSubscriptionQJeuAJeuFilterInput): QJeuAJeu @aws_subscribe(mutations: ["deleteQJeuAJeu"]) @aws_api_key @aws_iam
+  onCreateQuestionAnswer(filter: ModelSubscriptionQuestionAnswerFilterInput): QuestionAnswer @aws_subscribe(mutations: ["createQuestionAnswer"]) @aws_api_key @aws_iam
+  onUpdateQuestionAnswer(filter: ModelSubscriptionQuestionAnswerFilterInput): QuestionAnswer @aws_subscribe(mutations: ["updateQuestionAnswer"]) @aws_api_key @aws_iam
+  onDeleteQuestionAnswer(filter: ModelSubscriptionQuestionAnswerFilterInput): QuestionAnswer @aws_subscribe(mutations: ["deleteQuestionAnswer"]) @aws_api_key @aws_iam
+}
+
+type ModelTJeuConnection @aws_api_key @aws_iam {
+  items: [TJeu]!
+  nextToken: String
+}
+
+input ModelTJeuFilterInput {
+  id: ModelIDInput
+  text: ModelStringInput
+  and: [ModelTJeuFilterInput]
+  or: [ModelTJeuFilterInput]
+  not: ModelTJeuFilterInput
+}
+
+input ModelTJeuConditionInput {
+  text: ModelStringInput
+  and: [ModelTJeuConditionInput]
+  or: [ModelTJeuConditionInput]
+  not: ModelTJeuConditionInput
+}
+
+input CreateTJeuInput {
+  id: ID
+  text: String
+}
+
+input UpdateTJeuInput {
+  id: ID!
+  text: String
+}
+
+input DeleteTJeuInput {
+  id: ID!
+}
+
+input ModelSubscriptionTJeuFilterInput {
+  id: ModelSubscriptionIDInput
+  text: ModelSubscriptionStringInput
+  and: [ModelSubscriptionTJeuFilterInput]
+  or: [ModelSubscriptionTJeuFilterInput]
+}
+
+type ModelAJeuConnection @aws_api_key @aws_iam {
+  items: [AJeu]!
+  nextToken: String
+}
+
+input ModelAJeuFilterInput {
+  id: ModelIDInput
+  text: ModelStringInput
+  and: [ModelAJeuFilterInput]
+  or: [ModelAJeuFilterInput]
+  not: ModelAJeuFilterInput
+}
+
+input ModelAJeuConditionInput {
+  text: ModelStringInput
+  and: [ModelAJeuConditionInput]
+  or: [ModelAJeuConditionInput]
+  not: ModelAJeuConditionInput
+}
+
+input CreateAJeuInput {
+  id: ID
+  text: String
+}
+
+input UpdateAJeuInput {
+  id: ID!
+  text: String
+}
+
+input DeleteAJeuInput {
+  id: ID!
+}
+
+input ModelSubscriptionAJeuFilterInput {
+  id: ModelSubscriptionIDInput
+  text: ModelSubscriptionStringInput
+  and: [ModelSubscriptionAJeuFilterInput]
+  or: [ModelSubscriptionAJeuFilterInput]
+}
+
+type ModelQJeuConnection @aws_iam @aws_api_key {
+  items: [QJeu]!
+  nextToken: String
+}
+
+input ModelQJeuFilterInput {
+  id: ModelIDInput
+  text: ModelStringInput
+  tjeuID: ModelIDInput
+  and: [ModelQJeuFilterInput]
+  or: [ModelQJeuFilterInput]
+  not: ModelQJeuFilterInput
+  qJeuAcceptedAJeuId: ModelIDInput
+}
+
+input ModelQJeuConditionInput {
+  text: ModelStringInput
+  tjeuID: ModelIDInput
+  and: [ModelQJeuConditionInput]
+  or: [ModelQJeuConditionInput]
+  not: ModelQJeuConditionInput
+  qJeuAcceptedAJeuId: ModelIDInput
+}
+
+input CreateQJeuInput {
+  id: ID
+  text: String
+  tjeuID: ID!
+  qJeuAcceptedAJeuId: ID
+}
+
+input UpdateQJeuInput {
+  id: ID!
+  text: String
+  tjeuID: ID
+  qJeuAcceptedAJeuId: ID
+}
+
+input DeleteQJeuInput {
+  id: ID!
+}
+
+input ModelSubscriptionQJeuFilterInput {
+  id: ModelSubscriptionIDInput
+  text: ModelSubscriptionStringInput
+  tjeuID: ModelSubscriptionIDInput
+  and: [ModelSubscriptionQJeuFilterInput]
+  or: [ModelSubscriptionQJeuFilterInput]
+}
+
+type ModelQuizHistoryConnection @aws_api_key @aws_iam {
+  items: [QuizHistory]!
+  nextToken: String
+}
+
+input ModelQuizHistoryFilterInput {
+  id: ModelIDInput
+  quizId: ModelIDInput
+  userID: ModelIDInput
+  and: [ModelQuizHistoryFilterInput]
+  or: [ModelQuizHistoryFilterInput]
+  not: ModelQuizHistoryFilterInput
+}
+
+input ModelQuizHistoryConditionInput {
+  quizId: ModelIDInput
+  userID: ModelIDInput
+  and: [ModelQuizHistoryConditionInput]
+  or: [ModelQuizHistoryConditionInput]
+  not: ModelQuizHistoryConditionInput
+}
+
+input CreateQuizHistoryInput {
+  id: ID
+  quizId: ID
+  userID: ID!
+}
+
+input UpdateQuizHistoryInput {
+  id: ID!
+  quizId: ID
+  userID: ID
+}
+
+input DeleteQuizHistoryInput {
+  id: ID!
+}
+
+input ModelSubscriptionQuizHistoryFilterInput {
+  id: ModelSubscriptionIDInput
+  quizId: ModelSubscriptionIDInput
+  userID: ModelSubscriptionIDInput
+  and: [ModelSubscriptionQuizHistoryFilterInput]
+  or: [ModelSubscriptionQuizHistoryFilterInput]
+}
+
+type ModelUserConnection @aws_api_key @aws_iam {
+  items: [User]!
+  nextToken: String
+}
+
+input ModelUserFilterInput {
+  id: ModelIDInput
+  quizCount: ModelIntInput
+  jeuPoints: ModelIntInput
+  and: [ModelUserFilterInput]
+  or: [ModelUserFilterInput]
+  not: ModelUserFilterInput
+}
+
+input ModelUserConditionInput {
+  quizCount: ModelIntInput
+  jeuPoints: ModelIntInput
+  and: [ModelUserConditionInput]
+  or: [ModelUserConditionInput]
+  not: ModelUserConditionInput
+}
+
+input CreateUserInput {
+  id: ID
+  quizCount: Int
+  jeuPoints: Int
+}
+
+input UpdateUserInput {
+  id: ID!
+  quizCount: Int
+  jeuPoints: Int
+}
+
+input DeleteUserInput {
+  id: ID!
+}
+
+input ModelSubscriptionUserFilterInput {
+  id: ModelSubscriptionIDInput
+  quizCount: ModelSubscriptionIntInput
+  jeuPoints: ModelSubscriptionIntInput
+  and: [ModelSubscriptionUserFilterInput]
+  or: [ModelSubscriptionUserFilterInput]
+}
+
+type ModelThemeConnection @aws_api_key @aws_iam {
+  items: [Theme]!
+  nextToken: String
+}
+
+input ModelThemeFilterInput {
+  id: ModelIDInput
+  text: ModelStringInput
+  and: [ModelThemeFilterInput]
+  or: [ModelThemeFilterInput]
+  not: ModelThemeFilterInput
+}
+
+input ModelThemeConditionInput {
+  text: ModelStringInput
+  and: [ModelThemeConditionInput]
+  or: [ModelThemeConditionInput]
+  not: ModelThemeConditionInput
+}
+
+input CreateThemeInput {
+  id: ID
+  text: String
+}
+
+input UpdateThemeInput {
+  id: ID!
+  text: String
+}
+
+input DeleteThemeInput {
+  id: ID!
+}
+
+input ModelSubscriptionThemeFilterInput {
+  id: ModelSubscriptionIDInput
+  text: ModelSubscriptionStringInput
+  and: [ModelSubscriptionThemeFilterInput]
+  or: [ModelSubscriptionThemeFilterInput]
+}
+
+type ModelAnswerConnection @aws_api_key @aws_iam {
+  items: [Answer]!
+  nextToken: String
+}
+
+input ModelAnswerFilterInput {
+  id: ModelIDInput
+  text: ModelStringInput
+  and: [ModelAnswerFilterInput]
+  or: [ModelAnswerFilterInput]
+  not: ModelAnswerFilterInput
+}
+
+input ModelAnswerConditionInput {
+  text: ModelStringInput
+  and: [ModelAnswerConditionInput]
+  or: [ModelAnswerConditionInput]
+  not: ModelAnswerConditionInput
+}
+
+input CreateAnswerInput {
+  id: ID
+  text: String
+}
+
+input UpdateAnswerInput {
+  id: ID!
+  text: String
+}
+
+input DeleteAnswerInput {
+  id: ID!
+}
+
+input ModelSubscriptionAnswerFilterInput {
+  id: ModelSubscriptionIDInput
+  text: ModelSubscriptionStringInput
+  and: [ModelSubscriptionAnswerFilterInput]
+  or: [ModelSubscriptionAnswerFilterInput]
+}
+
+type ModelQuestionConnection @aws_iam @aws_api_key {
+  items: [Question]!
+  nextToken: String
+}
+
+input ModelQuestionFilterInput {
+  id: ModelIDInput
+  text: ModelStringInput
+  themeID: ModelIDInput
+  and: [ModelQuestionFilterInput]
+  or: [ModelQuestionFilterInput]
+  not: ModelQuestionFilterInput
+  questionAcceptedAnswerId: ModelIDInput
+}
+
+input ModelQuestionConditionInput {
+  text: ModelStringInput
+  themeID: ModelIDInput
+  and: [ModelQuestionConditionInput]
+  or: [ModelQuestionConditionInput]
+  not: ModelQuestionConditionInput
+  questionAcceptedAnswerId: ModelIDInput
+}
+
+input CreateQuestionInput {
+  id: ID
+  text: String
+  themeID: ID!
+  questionAcceptedAnswerId: ID
+}
+
+input UpdateQuestionInput {
+  id: ID!
+  text: String
+  themeID: ID
+  questionAcceptedAnswerId: ID
+}
+
+input DeleteQuestionInput {
+  id: ID!
+}
+
+input ModelSubscriptionQuestionFilterInput {
+  id: ModelSubscriptionIDInput
+  text: ModelSubscriptionStringInput
+  themeID: ModelSubscriptionIDInput
+  and: [ModelSubscriptionQuestionFilterInput]
+  or: [ModelSubscriptionQuestionFilterInput]
+}
+
+type ModelQJeuAJeuConnection @aws_iam @aws_api_key {
+  items: [QJeuAJeu]!
+  nextToken: String
+}
+
+input ModelQJeuAJeuFilterInput {
+  id: ModelIDInput
+  aJeuId: ModelIDInput
+  qJeuId: ModelIDInput
+  and: [ModelQJeuAJeuFilterInput]
+  or: [ModelQJeuAJeuFilterInput]
+  not: ModelQJeuAJeuFilterInput
+}
+
+input ModelQJeuAJeuConditionInput {
+  aJeuId: ModelIDInput
+  qJeuId: ModelIDInput
+  and: [ModelQJeuAJeuConditionInput]
+  or: [ModelQJeuAJeuConditionInput]
+  not: ModelQJeuAJeuConditionInput
+}
+
+input CreateQJeuAJeuInput {
+  id: ID
+  aJeuId: ID!
+  qJeuId: ID!
+}
+
+input UpdateQJeuAJeuInput {
+  id: ID!
+  aJeuId: ID
+  qJeuId: ID
+}
+
+input DeleteQJeuAJeuInput {
+  id: ID!
+}
+
+input ModelSubscriptionQJeuAJeuFilterInput {
+  id: ModelSubscriptionIDInput
+  aJeuId: ModelSubscriptionIDInput
+  qJeuId: ModelSubscriptionIDInput
+  and: [ModelSubscriptionQJeuAJeuFilterInput]
+  or: [ModelSubscriptionQJeuAJeuFilterInput]
+}
+
+type ModelQuestionAnswerConnection @aws_iam @aws_api_key {
+  items: [QuestionAnswer]!
+  nextToken: String
+}
+
+input ModelQuestionAnswerFilterInput {
+  id: ModelIDInput
+  answerId: ModelIDInput
+  questionId: ModelIDInput
+  and: [ModelQuestionAnswerFilterInput]
+  or: [ModelQuestionAnswerFilterInput]
+  not: ModelQuestionAnswerFilterInput
+}
+
+input ModelQuestionAnswerConditionInput {
+  answerId: ModelIDInput
+  questionId: ModelIDInput
+  and: [ModelQuestionAnswerConditionInput]
+  or: [ModelQuestionAnswerConditionInput]
+  not: ModelQuestionAnswerConditionInput
+}
+
+input CreateQuestionAnswerInput {
+  id: ID
+  answerId: ID!
+  questionId: ID!
+}
+
+input UpdateQuestionAnswerInput {
+  id: ID!
+  answerId: ID
+  questionId: ID
+}
+
+input DeleteQuestionAnswerInput {
+  id: ID!
+}
+
+input ModelSubscriptionQuestionAnswerFilterInput {
+  id: ModelSubscriptionIDInput
+  answerId: ModelSubscriptionIDInput
+  questionId: ModelSubscriptionIDInput
+  and: [ModelSubscriptionQuestionAnswerFilterInput]
+  or: [ModelSubscriptionQuestionAnswerFilterInput]
+}

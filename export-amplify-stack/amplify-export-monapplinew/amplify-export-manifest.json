@@ -1,0 +1,149 @@
+{
+  "stackName": "amplify-monapplinew-staging-203112",
+  "props": {
+    "templateFile": "root-stack-template.json",
+    "parameters": {
+      "AuthRoleName": "amplify-monapplinew-staging-203112-authRole",
+      "UnauthRoleName": "amplify-monapplinew-staging-203112-unauthRole",
+      "DeploymentBucketName": "amplify-monapplinew-staging-203112-deployment"
+    },
+    "preserveLogicalIds": true,
+    "loadNestedStacks": {
+      "apimonapplinew": {
+        "templateFile": "api\\monapplinew\\cloudformation-template.json",
+        "parameters": {
+          "AppSyncApiName": "monapplinew",
+          "DynamoDBBillingMode": "PAY_PER_REQUEST",
+          "DynamoDBEnableServerSideEncryption": false,
+          "S3DeploymentBucket": "amplify-monapplinew-staging-203112-deployment",
+          "S3DeploymentRootKey": "amplify-appsync-files/8ee0951268d4b3a2752d6fb425726099f165c2f3",
+          "env": "staging"
+        },
+        "preserveLogicalIds": true,
+        "loadNestedStacks": {
+          "AJeu": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\AJeu.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "Answer": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\Answer.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "ConnectionStack": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\ConnectionStack.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "CustomResourcesjson": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\CustomResources.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "JeuHistory": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\JeuHistory.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "QJeu": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\QJeu.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "QJeuAJeu": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\QJeuAJeu.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "Question": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\Question.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "QuestionAnswer": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\QuestionAnswer.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "QuizHistory": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\QuizHistory.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "TJeu": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\TJeu.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "Theme": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\Theme.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          },
+          "User": {
+            "templateFile": "api\\monapplinew\\amplify-appsync-files\\stacks\\User.json",
+            "preserveLogicalIds": true,
+            "loadNestedStacks": {}
+          }
+        }
+      },
+      "authmonapplinew": {
+        "templateFile": "auth\\monapplinew\\monapplinew-cloudformation-template.json",
+        "parameters": {
+          "identityPoolName": "testAuthIdentityPool",
+          "allowUnauthenticatedIdentities": false,
+          "resourceNameTruncated": "monappf7f61b61",
+          "userPoolName": "monapplinew",
+          "autoVerifiedAttributes": [
+            "email"
+          ],
+          "mfaConfiguration": "OFF",
+          "mfaTypes": [
+            "SMS Text Message"
+          ],
+          "smsAuthenticationMessage": "Your authentication code is {####}",
+          "smsVerificationMessage": "Your verification code is {####}",
+          "emailVerificationSubject": "Verification code: {####}",
+          "emailVerificationMessage": "Verification code: {####}",
+          "defaultPasswordPolicy": false,
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": [
+            "Requires Lowercase",
+            "Requires Numbers",
+            "Requires Symbols",
+            "Requires Uppercase"
+          ],
+          "requiredAttributes": [
+            "email",
+            "name"
+          ],
+          "aliasAttributes": [],
+          "userpoolClientGenerateSecret": false,
+          "userpoolClientRefreshTokenValidity": 30,
+          "userpoolClientWriteAttributes": [],
+          "userpoolClientReadAttributes": [],
+          "userpoolClientLambdaRole": "monappf7f61b61_userpoolclient_lambda_role",
+          "userpoolClientSetAttributes": false,
+          "sharedId": "f7f61b61",
+          "resourceName": "monapplinew",
+          "authSelections": "identityPoolAndUserPool",
+          "serviceName": "Cognito",
+          "useDefault": "manual",
+          "userPoolGroups": false,
+          "userPoolGroupList": [],
+          "adminQueries": false,
+          "thirdPartyAuth": false,
+          "authProviders": [],
+          "usernameCaseSensitive": false,
+          "useEnabledMfas": true,
+          "breakCircularDependency": true,
+          "dependsOn": [],
+          "env": "staging"
+        },
+        "preserveLogicalIds": true,
+        "loadNestedStacks": {}
+      }
+    }
+  }
+}

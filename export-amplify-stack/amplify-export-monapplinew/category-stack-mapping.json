@@ -1,0 +1,12 @@
+[
+  {
+    "category": "api",
+    "resourceName": "monapplinew",
+    "service": "AppSync"
+  },
+  {
+    "category": "auth",
+    "resourceName": "monapplinew",
+    "service": "Cognito"
+  }
+]

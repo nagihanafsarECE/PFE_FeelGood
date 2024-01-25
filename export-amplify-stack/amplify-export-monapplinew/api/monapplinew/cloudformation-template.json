@@ -1,0 +1,1493 @@
+{
+  "Parameters": {
+    "env": {
+      "Type": "String",
+      "Default": "NONE"
+    },
+    "AppSyncApiName": {
+      "Type": "String",
+      "Default": "AppSyncSimpleTransform"
+    },
+    "authRoleName": {
+      "Type": "String"
+    },
+    "unauthRoleName": {
+      "Type": "String"
+    },
+    "DynamoDBModelTableReadIOPS": {
+      "Type": "Number",
+      "Default": 5,
+      "Description": "The number of read IOPS the table should support."
+    },
+    "DynamoDBModelTableWriteIOPS": {
+      "Type": "Number",
+      "Default": 5,
+      "Description": "The number of write IOPS the table should support."
+    },
+    "DynamoDBBillingMode": {
+      "Type": "String",
+      "Default": "PAY_PER_REQUEST",
+      "AllowedValues": [
+        "PAY_PER_REQUEST",
+        "PROVISIONED"
+      ],
+      "Description": "Configure @model types to create DynamoDB tables with PAY_PER_REQUEST or PROVISIONED billing modes."
+    },
+    "DynamoDBEnablePointInTimeRecovery": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "Description": "Whether to enable Point in Time Recovery on the table."
+    },
+    "DynamoDBEnableServerSideEncryption": {
+      "Type": "String",
+      "Default": "true",
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "Description": "Enable server side encryption powered by KMS."
+    },
+    "S3DeploymentBucket": {
+      "Type": "String",
+      "Description": "An S3 Bucket name where assets are deployed"
+    },
+    "S3DeploymentRootKey": {
+      "Type": "String",
+      "Description": "An S3 key relative to the S3DeploymentBucket that points to the root of the deployment directory."
+    }
+  },
+  "Resources": {
+    "GraphQLAPI": {
+      "Type": "AWS::AppSync::GraphQLApi",
+      "Properties": {
+        "AuthenticationType": "API_KEY",
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AppSyncApiName"
+              },
+              "-",
+              {
+                "Ref": "env"
+              }
+            ]
+          ]
+        },
+        "AdditionalAuthenticationProviders": [
+          {
+            "AuthenticationType": "AWS_IAM"
+          }
+        ]
+      }
+    },
+    "GraphQLAPITransformerSchema3CB2AE18": {
+      "Type": "AWS::AppSync::GraphQLSchema",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "GraphQLAPI",
+            "ApiId"
+          ]
+        },
+        "DefinitionS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "S3DeploymentBucket"
+              },
+              "/",
+              {
+                "Ref": "S3DeploymentRootKey"
+              },
+              "/schema.graphql"
+            ]
+          ]
+        }
+      }
+    },
+    "GraphQLAPIDefaultApiKey215A6DD7": {
+      "Type": "AWS::AppSync::ApiKey",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "GraphQLAPI",
+            "ApiId"
+          ]
+        },
+        "Description": "api key description",
+        "Expires": 1708703286
+      }
+    },
+    "GraphQLAPINONEDS95A13CF0": {
+      "Type": "AWS::AppSync::DataSource",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "GraphQLAPI",
+            "ApiId"
+          ]
+        },
+        "Name": "NONE_DS",
+        "Type": "NONE",
+        "Description": "None Data Source for Pipeline functions"
+      }
+    },
+    "DataStore": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": [
+          {
+            "AttributeName": "ds_pk",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "ds_sk",
+            "KeyType": "RANGE"
+          }
+        ],
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "ds_pk",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "ds_sk",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": {
+          "Fn::Join": [
+            "",
+            [
+              "AmplifyDataStore-",
+              {
+                "Fn::GetAtt": [
+                  "GraphQLAPI",
+                  "ApiId"
+                ]
+              },
+              "-",
+              {
+                "Ref": "env"
+              }
+            ]
+          ]
+        },
+        "TimeToLiveSpecification": {
+          "AttributeName": "_ttl",
+          "Enabled": true
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "AmplifyDataStoreIAMRole8DE05A49": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "appsync.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "RoleName": {
+          "Fn::Join": [
+            "",
+            [
+              "AmplifyDataStoreIAMRb752cd-",
+              {
+                "Fn::GetAtt": [
+                  "GraphQLAPI",
+                  "ApiId"
+                ]
+              },
+              "-",
+              {
+                "Ref": "env"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "DynamoDBAccess71ABE5AE": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}",
+                    {
+                      "tablename": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "AmplifyDataStore-",
+                            {
+                              "Fn::GetAtt": [
+                                "GraphQLAPI",
+                                "ApiId"
+                              ]
+                            },
+                            "-",
+                            {
+                              "Ref": "env"
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Fn::Sub": [
+                    "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}/*",
+                    {
+                      "tablename": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "AmplifyDataStore-",
+                            {
+                              "Fn::GetAtt": [
+                                "GraphQLAPI",
+                                "ApiId"
+                              ]
+                            },
+                            "-",
+                            {
+                              "Ref": "env"
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "DynamoDBAccess71ABE5AE",
+        "Roles": [
+          {
+            "Ref": "AmplifyDataStoreIAMRole8DE05A49"
+          }
+        ]
+      }
+    },
+    "JeuHistory": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackGraphQLAPINONEDS2BA9D1C8Name": {
+            "Fn::GetAtt": [
+              "GraphQLAPINONEDS95A13CF0",
+              "Name"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "TJeu": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "AJeu": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "QJeu": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "QuizHistory": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "User": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "Theme": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "Answer": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "Question": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "QJeuAJeu": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "QuestionAnswer": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "DynamoDBModelTableReadIOPS": {
+            "Ref": "DynamoDBModelTableReadIOPS"
+          },
+          "DynamoDBModelTableWriteIOPS": {
+            "Ref": "DynamoDBModelTableWriteIOPS"
+          },
+          "DynamoDBBillingMode": {
+            "Ref": "DynamoDBBillingMode"
+          },
+          "DynamoDBEnablePointInTimeRecovery": {
+            "Ref": "DynamoDBEnablePointInTimeRecovery"
+          },
+          "DynamoDBEnableServerSideEncryption": {
+            "Ref": "DynamoDBEnableServerSideEncryption"
+          },
+          "referencetotransformerrootstackenv10C5A902Ref": {
+            "Ref": "env"
+          },
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPITransformerSchema3CB2AE18"
+      ]
+    },
+    "ConnectionStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "referencetotransformerrootstackGraphQLAPINONEDS2BA9D1C8Name": {
+            "Fn::GetAtt": [
+              "GraphQLAPINONEDS95A13CF0",
+              "Name"
+            ]
+          },
+          "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+            "Ref": "S3DeploymentRootKey"
+          },
+          "referencetotransformerrootstackQJeuNestedStackQJeuNestedStackResource379F8C3COutputstransformerrootstackQJeuQJeuDataSourceA25378AEName": {
+            "Fn::GetAtt": [
+              "QJeu",
+              "Outputs.transformerrootstackQJeuQJeuDataSourceA25378AEName"
+            ]
+          },
+          "referencetotransformerrootstackQJeuNestedStackQJeuNestedStackResource379F8C3COutputstransformerrootstackQJeuQJeuTableDD5A9C7BRef": {
+            "Fn::GetAtt": [
+              "QJeu",
+              "Outputs.transformerrootstackQJeuQJeuTableDD5A9C7BRef"
+            ]
+          },
+          "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+            "Ref": "authRoleName"
+          },
+          "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+            "Ref": "unauthRoleName"
+          },
+          "referencetotransformerrootstackQuizHistoryNestedStackQuizHistoryNestedStackResourceB2837BC8OutputstransformerrootstackQuizHistoryQuizHistoryDataSourceA17F77FAName": {
+            "Fn::GetAtt": [
+              "QuizHistory",
+              "Outputs.transformerrootstackQuizHistoryQuizHistoryDataSourceA17F77FAName"
+            ]
+          },
+          "referencetotransformerrootstackQuizHistoryNestedStackQuizHistoryNestedStackResourceB2837BC8OutputstransformerrootstackQuizHistoryQuizHistoryTable1A952F3ARef": {
+            "Fn::GetAtt": [
+              "QuizHistory",
+              "Outputs.transformerrootstackQuizHistoryQuizHistoryTable1A952F3ARef"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryJeuHistoryDataSource673A9842Name": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryJeuHistoryDataSource673A9842Name"
+            ]
+          },
+          "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryJeuHistoryTable3CE1D6BCRef": {
+            "Fn::GetAtt": [
+              "JeuHistory",
+              "Outputs.transformerrootstackJeuHistoryJeuHistoryTable3CE1D6BCRef"
+            ]
+          },
+          "referencetotransformerrootstackQuestionNestedStackQuestionNestedStackResourceFF141CCBOutputstransformerrootstackQuestionQuestionDataSource4FD6A889Name": {
+            "Fn::GetAtt": [
+              "Question",
+              "Outputs.transformerrootstackQuestionQuestionDataSource4FD6A889Name"
+            ]
+          },
+          "referencetotransformerrootstackQuestionNestedStackQuestionNestedStackResourceFF141CCBOutputstransformerrootstackQuestionQuestionTableB2AC29C6Ref": {
+            "Fn::GetAtt": [
+              "Question",
+              "Outputs.transformerrootstackQuestionQuestionTableB2AC29C6Ref"
+            ]
+          },
+          "referencetotransformerrootstackAJeuNestedStackAJeuNestedStackResource1F4FA287OutputstransformerrootstackAJeuAJeuDataSourceA592079BName": {
+            "Fn::GetAtt": [
+              "AJeu",
+              "Outputs.transformerrootstackAJeuAJeuDataSourceA592079BName"
+            ]
+          },
+          "referencetotransformerrootstackAJeuNestedStackAJeuNestedStackResource1F4FA287OutputstransformerrootstackAJeuAJeuTable207B1902Ref": {
+            "Fn::GetAtt": [
+              "AJeu",
+              "Outputs.transformerrootstackAJeuAJeuTable207B1902Ref"
+            ]
+          },
+          "referencetotransformerrootstackAnswerNestedStackAnswerNestedStackResource1D0994B9OutputstransformerrootstackAnswerAnswerDataSource1A0F8ED2Name": {
+            "Fn::GetAtt": [
+              "Answer",
+              "Outputs.transformerrootstackAnswerAnswerDataSource1A0F8ED2Name"
+            ]
+          },
+          "referencetotransformerrootstackAnswerNestedStackAnswerNestedStackResource1D0994B9OutputstransformerrootstackAnswerAnswerTable9012BF65Ref": {
+            "Fn::GetAtt": [
+              "Answer",
+              "Outputs.transformerrootstackAnswerAnswerTable9012BF65Ref"
+            ]
+          },
+          "referencetotransformerrootstackQJeuAJeuNestedStackQJeuAJeuNestedStackResource05D3730EOutputstransformerrootstackQJeuAJeuQJeuAJeuDataSourceD809C754Name": {
+            "Fn::GetAtt": [
+              "QJeuAJeu",
+              "Outputs.transformerrootstackQJeuAJeuQJeuAJeuDataSourceD809C754Name"
+            ]
+          },
+          "referencetotransformerrootstackQJeuAJeuNestedStackQJeuAJeuNestedStackResource05D3730EOutputstransformerrootstackQJeuAJeuQJeuAJeuTable950E7200Ref": {
+            "Fn::GetAtt": [
+              "QJeuAJeu",
+              "Outputs.transformerrootstackQJeuAJeuQJeuAJeuTable950E7200Ref"
+            ]
+          },
+          "referencetotransformerrootstackQuestionAnswerNestedStackQuestionAnswerNestedStackResourceF8816D89OutputstransformerrootstackQuestionAnswerQuestionAnswerDataSource6F8451B5Name": {
+            "Fn::GetAtt": [
+              "QuestionAnswer",
+              "Outputs.transformerrootstackQuestionAnswerQuestionAnswerDataSource6F8451B5Name"
+            ]
+          },
+          "referencetotransformerrootstackQuestionAnswerNestedStackQuestionAnswerNestedStackResourceF8816D89OutputstransformerrootstackQuestionAnswerQuestionAnswerTableD0AA8D87Ref": {
+            "Fn::GetAtt": [
+              "QuestionAnswer",
+              "Outputs.transformerrootstackQuestionAnswerQuestionAnswerTableD0AA8D87Ref"
+            ]
+          }
+        }
+      },
+      "DependsOn": [
+        "AJeu",
+        "Answer",
+        "GraphQLAPITransformerSchema3CB2AE18",
+        "JeuHistory",
+        "QJeu",
+        "QJeuAJeu",
+        "Question",
+        "QuestionAnswer",
+        "QuizHistory"
+      ]
+    },
+    "CustomResourcesjson": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "AppSyncApiId": {
+            "Fn::GetAtt": [
+              "GraphQLAPI",
+              "ApiId"
+            ]
+          },
+          "AppSyncApiName": {
+            "Ref": "AppSyncApiName"
+          },
+          "env": {
+            "Ref": "env"
+          },
+          "S3DeploymentBucket": {
+            "Ref": "S3DeploymentBucket"
+          },
+          "S3DeploymentRootKey": {
+            "Ref": "S3DeploymentRootKey"
+          }
+        }
+      },
+      "DependsOn": [
+        "GraphQLAPI",
+        "GraphQLAPITransformerSchema3CB2AE18",
+        "JeuHistory",
+        "TJeu",
+        "AJeu",
+        "QJeu",
+        "QuizHistory",
+        "User",
+        "Theme",
+        "Answer",
+        "Question",
+        "QJeuAJeu",
+        "QuestionAnswer",
+        "ConnectionStack"
+      ]
+    }
+  },
+  "Outputs": {
+    "GraphQLAPIKeyOutput": {
+      "Description": "Your GraphQL API ID.",
+      "Value": {
+        "Fn::GetAtt": [
+          "GraphQLAPIDefaultApiKey215A6DD7",
+          "ApiKey"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "AWS::StackName"
+              },
+              "GraphQLApiKey"
+            ]
+          ]
+        }
+      }
+    },
+    "GraphQLAPIIdOutput": {
+      "Description": "Your GraphQL API ID.",
+      "Value": {
+        "Fn::GetAtt": [
+          "GraphQLAPI",
+          "ApiId"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "AWS::StackName"
+              },
+              "GraphQLApiId"
+            ]
+          ]
+        }
+      }
+    },
+    "GraphQLAPIEndpointOutput": {
+      "Description": "Your GraphQL API endpoint.",
+      "Value": {
+        "Fn::GetAtt": [
+          "GraphQLAPI",
+          "GraphQLUrl"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "AWS::StackName"
+              },
+              "GraphQLApiEndpoint"
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"12.10.1\",\"stackType\":\"root\",\"metadata\":{}}"
+}

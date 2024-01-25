@@ -1,0 +1,1585 @@
+{
+  "Parameters": {
+    "DynamoDBModelTableReadIOPS": {
+      "Type": "Number",
+      "Default": 5,
+      "Description": "The number of read IOPS the table should support."
+    },
+    "DynamoDBModelTableWriteIOPS": {
+      "Type": "Number",
+      "Default": 5,
+      "Description": "The number of write IOPS the table should support."
+    },
+    "DynamoDBBillingMode": {
+      "Type": "String",
+      "Default": "PAY_PER_REQUEST",
+      "AllowedValues": [
+        "PAY_PER_REQUEST",
+        "PROVISIONED"
+      ],
+      "Description": "Configure @model types to create DynamoDB tables with PAY_PER_REQUEST or PROVISIONED billing modes."
+    },
+    "DynamoDBEnablePointInTimeRecovery": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "Description": "Whether to enable Point in Time Recovery on the table."
+    },
+    "DynamoDBEnableServerSideEncryption": {
+      "Type": "String",
+      "Default": "true",
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "Description": "Enable server side encryption powered by KMS."
+    },
+    "referencetotransformerrootstackenv10C5A902Ref": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackGraphQLAPI20497F53ApiId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackS3DeploymentBucket7592718ARef": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackauthRoleNameFB872D50Ref": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackunauthRoleName49F3C1FERef": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId": {
+      "Type": "String"
+    },
+    "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId": {
+      "Type": "String"
+    }
+  },
+  "Conditions": {
+    "HasEnvironmentParameter": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "referencetotransformerrootstackenv10C5A902Ref"
+            },
+            "NONE"
+          ]
+        }
+      ]
+    },
+    "ShouldUseServerSideEncryption": {
+      "Fn::Equals": [
+        {
+          "Ref": "DynamoDBEnableServerSideEncryption"
+        },
+        "true"
+      ]
+    },
+    "ShouldUsePayPerRequestBilling": {
+      "Fn::Equals": [
+        {
+          "Ref": "DynamoDBBillingMode"
+        },
+        "PAY_PER_REQUEST"
+      ]
+    },
+    "ShouldUsePointInTimeRecovery": {
+      "Fn::Equals": [
+        {
+          "Ref": "DynamoDBEnablePointInTimeRecovery"
+        },
+        "true"
+      ]
+    }
+  },
+  "Resources": {
+    "QJeuAJeuTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "aJeuId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "qJeuId",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingMode": {
+          "Fn::If": [
+            "ShouldUsePayPerRequestBilling",
+            "PAY_PER_REQUEST",
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "byAJeu",
+            "KeySchema": [
+              {
+                "AttributeName": "aJeuId",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+              "Fn::If": [
+                "ShouldUsePayPerRequestBilling",
+                {
+                  "Ref": "AWS::NoValue"
+                },
+                {
+                  "ReadCapacityUnits": {
+                    "Ref": "DynamoDBModelTableReadIOPS"
+                  },
+                  "WriteCapacityUnits": {
+                    "Ref": "DynamoDBModelTableWriteIOPS"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "IndexName": "byQJeu",
+            "KeySchema": [
+              {
+                "AttributeName": "qJeuId",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+              "Fn::If": [
+                "ShouldUsePayPerRequestBilling",
+                {
+                  "Ref": "AWS::NoValue"
+                },
+                {
+                  "ReadCapacityUnits": {
+                    "Ref": "DynamoDBModelTableReadIOPS"
+                  },
+                  "WriteCapacityUnits": {
+                    "Ref": "DynamoDBModelTableWriteIOPS"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "PointInTimeRecoverySpecification": {
+          "Fn::If": [
+            "ShouldUsePointInTimeRecovery",
+            {
+              "PointInTimeRecoveryEnabled": true
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "ProvisionedThroughput": {
+          "Fn::If": [
+            "ShouldUsePayPerRequestBilling",
+            {
+              "Ref": "AWS::NoValue"
+            },
+            {
+              "ReadCapacityUnits": {
+                "Ref": "DynamoDBModelTableReadIOPS"
+              },
+              "WriteCapacityUnits": {
+                "Ref": "DynamoDBModelTableWriteIOPS"
+              }
+            }
+          ]
+        },
+        "SSESpecification": {
+          "SSEEnabled": {
+            "Fn::If": [
+              "ShouldUseServerSideEncryption",
+              true,
+              false
+            ]
+          }
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "TableName": {
+          "Fn::Join": [
+            "",
+            [
+              "QJeuAJeu-",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "-",
+              {
+                "Ref": "referencetotransformerrootstackenv10C5A902Ref"
+              }
+            ]
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "QJeuAJeuIAMRole0A6ED328": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "appsync.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "RoleName": {
+          "Fn::Join": [
+            "",
+            [
+              "QJeuAJeuIAMRole9b1999-",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "-",
+              {
+                "Ref": "referencetotransformerrootstackenv10C5A902Ref"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "QJeuAJeuIAMRoleDefaultPolicy2E7AFE7B": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "QJeuAJeuTable",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "QJeuAJeuTable",
+                          "Arn"
+                        ]
+                      },
+                      "/index/*"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "QJeuAJeuIAMRoleDefaultPolicy2E7AFE7B",
+        "Roles": [
+          {
+            "Ref": "QJeuAJeuIAMRole0A6ED328"
+          }
+        ]
+      }
+    },
+    "DynamoDBAccess71ABE5AE": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}",
+                    {
+                      "tablename": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "QJeuAJeu-",
+                            {
+                              "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+                            },
+                            "-",
+                            {
+                              "Ref": "referencetotransformerrootstackenv10C5A902Ref"
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Fn::Sub": [
+                    "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}/*",
+                    {
+                      "tablename": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "QJeuAJeu-",
+                            {
+                              "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+                            },
+                            "-",
+                            {
+                              "Ref": "referencetotransformerrootstackenv10C5A902Ref"
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "DynamoDBAccess71ABE5AE",
+        "Roles": [
+          {
+            "Ref": "QJeuAJeuIAMRole0A6ED328"
+          }
+        ]
+      }
+    },
+    "QJeuAJeuDataSource": {
+      "Type": "AWS::AppSync::DataSource",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "Name": "QJeuAJeuTable",
+        "Type": "AMAZON_DYNAMODB",
+        "DynamoDBConfig": {
+          "AwsRegion": {
+            "Ref": "AWS::Region"
+          },
+          "TableName": {
+            "Ref": "QJeuAJeuTable"
+          }
+        },
+        "ServiceRoleArn": {
+          "Fn::GetAtt": [
+            "QJeuAJeuIAMRole0A6ED328",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuIAMRole0A6ED328"
+      ]
+    },
+    "QueryGetQJeuAJeuDataResolverFnQueryGetQJeuAJeuDataResolverFnAppSyncFunctionEE619387": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "QueryGetQJeuAJeuDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.getQJeuAJeu.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.getQJeuAJeu.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "GetQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "getQJeuAJeu",
+        "TypeName": "Query",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "QueryGetQJeuAJeuDataResolverFnQueryGetQJeuAJeuDataResolverFnAppSyncFunctionEE619387",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Query\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"getQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "QueryListQJeuAJeusDataResolverFnQueryListQJeuAJeusDataResolverFnAppSyncFunction40C70B97": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "QueryListQJeuAJeusDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.listQJeuAJeus.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.listQJeuAJeus.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "ListQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "listQJeuAJeus",
+        "TypeName": "Query",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "QueryListQJeuAJeusDataResolverFnQueryListQJeuAJeusDataResolverFnAppSyncFunction40C70B97",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Query\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"listQJeuAJeus\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "MutationCreateQJeuAJeuDataResolverFnMutationCreateQJeuAJeuDataResolverFnAppSyncFunction34A92AE4": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "MutationCreateQJeuAJeuDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.createQJeuAJeu.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.createQJeuAJeu.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "CreateQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "createQJeuAJeu",
+        "TypeName": "Mutation",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryinit0FunctionMutationcreateJeuHistoryinit0FunctionAppSyncFunction1182CA75FunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationcreateJeuHistoryauth0FunctionMutationcreateJeuHistoryauth0FunctionAppSyncFunction9A40647EFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "MutationCreateQJeuAJeuDataResolverFnMutationCreateQJeuAJeuDataResolverFnAppSyncFunction34A92AE4",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Mutation\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"createQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "MutationupdateQJeuAJeuauth0FunctionMutationupdateQJeuAJeuauth0FunctionAppSyncFunction45D565AB": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "MutationupdateQJeuAJeuauth0Function",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.updateQJeuAJeu.auth.1.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.updateQJeuAJeu.auth.1.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "MutationUpdateQJeuAJeuDataResolverFnMutationUpdateQJeuAJeuDataResolverFnAppSyncFunctionF5D4499A": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "MutationUpdateQJeuAJeuDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.updateQJeuAJeu.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.updateQJeuAJeu.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "UpdateQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "updateQJeuAJeu",
+        "TypeName": "Mutation",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryMutationupdateJeuHistoryinit0FunctionMutationupdateJeuHistoryinit0FunctionAppSyncFunctionD6921B8FFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "MutationupdateQJeuAJeuauth0FunctionMutationupdateQJeuAJeuauth0FunctionAppSyncFunction45D565AB",
+                "FunctionId"
+              ]
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "MutationUpdateQJeuAJeuDataResolverFnMutationUpdateQJeuAJeuDataResolverFnAppSyncFunctionF5D4499A",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Mutation\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"updateQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "MutationdeleteQJeuAJeuauth0FunctionMutationdeleteQJeuAJeuauth0FunctionAppSyncFunctionBE6CFBA8": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "MutationdeleteQJeuAJeuauth0Function",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.deleteQJeuAJeu.auth.1.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.deleteQJeuAJeu.auth.1.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "MutationDeleteQJeuAJeuDataResolverFnMutationDeleteQJeuAJeuDataResolverFnAppSyncFunctionBE504815": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "MutationDeleteQJeuAJeuDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.deleteQJeuAJeu.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Mutation.deleteQJeuAJeu.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "DeleteQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "deleteQJeuAJeu",
+        "TypeName": "Mutation",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Fn::GetAtt": [
+                "MutationdeleteQJeuAJeuauth0FunctionMutationdeleteQJeuAJeuauth0FunctionAppSyncFunctionBE6CFBA8",
+                "FunctionId"
+              ]
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "MutationDeleteQJeuAJeuDataResolverFnMutationDeleteQJeuAJeuDataResolverFnAppSyncFunctionBE504815",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Mutation\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"deleteQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "SubscriptiononCreateQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "onCreateQJeuAJeu",
+        "TypeName": "Subscription",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Subscription\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"onCreateQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"NONE\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "SubscriptiononUpdateQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "onUpdateQJeuAJeu",
+        "TypeName": "Subscription",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Subscription\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"onUpdateQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"NONE\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "SubscriptiononDeleteQJeuAJeuResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "onDeleteQJeuAJeu",
+        "TypeName": "Subscription",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptiononCreateJeuHistoryauth0FunctionSubscriptiononCreateJeuHistoryauth0FunctionAppSyncFunction9BD1412DFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistorySubscriptionOnCreateJeuHistoryDataResolverFnSubscriptionOnCreateJeuHistoryDataResolverFnAppSyncFunction6EA8E0E6FunctionId"
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Subscription\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"onDeleteQJeuAJeu\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"NONE\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "QueryQJeuAJeusByAJeuIdDataResolverFnQueryQJeuAJeusByAJeuIdDataResolverFnAppSyncFunctionE5BCBE11": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "QueryQJeuAJeusByAJeuIdDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.qJeuAJeusByAJeuId.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.qJeuAJeusByAJeuId.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "QueryqJeuAJeusByAJeuIdResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "qJeuAJeusByAJeuId",
+        "TypeName": "Query",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "QueryQJeuAJeusByAJeuIdDataResolverFnQueryQJeuAJeusByAJeuIdDataResolverFnAppSyncFunctionE5BCBE11",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Query\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"qJeuAJeusByAJeuId\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    },
+    "QueryQJeuAJeusByQJeuIdDataResolverFnQueryQJeuAJeusByQJeuIdDataResolverFnAppSyncFunction54309473": {
+      "Type": "AWS::AppSync::FunctionConfiguration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "DataSourceName": {
+          "Fn::GetAtt": [
+            "QJeuAJeuDataSource",
+            "Name"
+          ]
+        },
+        "Name": "QueryQJeuAJeusByQJeuIdDataResolverFn",
+        "FunctionVersion": "2018-05-29",
+        "RequestMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.qJeuAJeusByQJeuId.req.vtl"
+            ]
+          ]
+        },
+        "ResponseMappingTemplateS3Location": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentBucket7592718ARef"
+              },
+              "/",
+              {
+                "Ref": "referencetotransformerrootstackS3DeploymentRootKeyA71EA735Ref"
+              },
+              "/resolvers/Query.qJeuAJeusByQJeuId.res.vtl"
+            ]
+          ]
+        }
+      },
+      "DependsOn": [
+        "QJeuAJeuDataSource"
+      ]
+    },
+    "QueryqJeuAJeusByQJeuIdResolver": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+        },
+        "FieldName": "qJeuAJeusByQJeuId",
+        "TypeName": "Query",
+        "Kind": "PIPELINE",
+        "PipelineConfig": {
+          "Functions": [
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistoryauth0FunctionQuerygetJeuHistoryauth0FunctionAppSyncFunction17ADA230FunctionId"
+            },
+            {
+              "Ref": "referencetotransformerrootstackJeuHistoryNestedStackJeuHistoryNestedStackResource106B04A3OutputstransformerrootstackJeuHistoryQuerygetJeuHistorypostAuth0FunctionQuerygetJeuHistorypostAuth0FunctionAppSyncFunctionA2825DEAFunctionId"
+            },
+            {
+              "Fn::GetAtt": [
+                "QueryQJeuAJeusByQJeuIdDataResolverFnQueryQJeuAJeusByQJeuIdDataResolverFnAppSyncFunction54309473",
+                "FunctionId"
+              ]
+            }
+          ]
+        },
+        "RequestMappingTemplate": {
+          "Fn::Join": [
+            "",
+            [
+              "$util.qr($ctx.stash.put(\"typeName\", \"Query\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"qJeuAJeusByQJeuId\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+              {
+                "Ref": "QJeuAJeuTable"
+              },
+              "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackauthRoleNameFB872D50Ref"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:aws:sts::",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":assumed-role/",
+              {
+                "Ref": "referencetotransformerrootstackunauthRoleName49F3C1FERef"
+              },
+              "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-north-1:0b9dd0ea-c230-440b-8a4d-52ec412de58d\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"eu-north-1_bmA4PL7AM_Full-access/CognitoIdentityCredentials\",\"eu-north-1_bmA4PL7AM_Manage-only/CognitoIdentityCredentials\"]))\n$util.toJson({})"
+            ]
+          ]
+        },
+        "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)"
+      }
+    }
+  },
+  "Outputs": {
+    "GetAttQJeuAJeuTableStreamArn": {
+      "Description": "Your DynamoDB table StreamArn.",
+      "Value": {
+        "Fn::GetAtt": [
+          "QJeuAJeuTable",
+          "StreamArn"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "GetAtt:QJeuAJeuTable:StreamArn"
+            ]
+          ]
+        }
+      }
+    },
+    "GetAttQJeuAJeuTableName": {
+      "Description": "Your DynamoDB table name.",
+      "Value": {
+        "Ref": "QJeuAJeuTable"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "GetAtt:QJeuAJeuTable:Name"
+            ]
+          ]
+        }
+      }
+    },
+    "GetAttQJeuAJeuDataSourceName": {
+      "Description": "Your model DataSource name.",
+      "Value": {
+        "Fn::GetAtt": [
+          "QJeuAJeuDataSource",
+          "Name"
+        ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "referencetotransformerrootstackGraphQLAPI20497F53ApiId"
+              },
+              "GetAtt:QJeuAJeuDataSource:Name"
+            ]
+          ]
+        }
+      }
+    },
+    "transformerrootstackQJeuAJeuQJeuAJeuDataSourceD809C754Name": {
+      "Value": {
+        "Fn::GetAtt": [
+          "QJeuAJeuDataSource",
+          "Name"
+        ]
+      }
+    },
+    "transformerrootstackQJeuAJeuQJeuAJeuTable950E7200Ref": {
+      "Value": {
+        "Ref": "QJeuAJeuTable"
+      }
+    }
+  }
+}
