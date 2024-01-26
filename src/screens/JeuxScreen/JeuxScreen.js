@@ -21,10 +21,9 @@ const JeuxScreen = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
 
   const themeBackgrounds = {
-    "74fd62e0-0e26-4db2-9b3a-b95188d90575": require('../../../assets/images/RS.png'),
-    "55edae68-e4ce-4f52-bcd8-c34c5b5bd6e6": require('../../../assets/images/RS.png'),
-    "b856d0d3-21f7-4887-b560-d588f24b7cbd": require('../../../assets/images/RS.png'),
-    
+    "74fd62e0-0e26-4db2-9b3a-b95188d90575": require('../../../assets/images/Feel__Good.png'),
+    "b856d0d3-21f7-4887-b560-d588f24b7cbd": require('../../../assets/images/influenceuse.png'),
+    "55edae68-e4ce-4f52-bcd8-c34c5b5bd6e6": require('../../../assets/images/footballeur.png'),
   };
 
   useEffect(() => {

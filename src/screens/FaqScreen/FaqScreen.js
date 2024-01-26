@@ -6,34 +6,52 @@ import {LinearGradient} from 'expo-linear-gradient';
 const FaqScreen = ({ navigation }) => {
   const faqData = [
     {
+      question: "Comment fonctionne le Quiz ?",
+      answer: "Une fois connecté à l'application, l'utilisateur clique à la section 'Quiz'. À partir de là, il sélectionne un thème initial, puis répond aux questions en choisissant les options correspondantes.",
+    },
+    {
+      question: "Comment gagner des points en faisant un Quiz ?",
+      answer: "En cas de réponses correctes à toutes les questions, la barre de progression sur la page d'accueil s'incrémente d'un point pour chaque quiz accompli avec succès.",
+    },
+    {
+      question: "Pouvons-nous gagner plusieurs points en effectuant plusieurs fois le même Quiz ?",
+      answer: "Non, il n'est possible de gagner qu'un seul point, même en effectuant le même Quiz plusieurs fois.",
+    },
+    {
+      question: "Comment fonctionne les Jeux ?",
+      answer: "Une fois connecté à l'application, l'utilisateur clique à la section 'Jeux'. À partir de là, il sélectionne un Jeu initial, puis répond aux questions en choisissant les options correspondantes.\n\nSi l'utilisateur choisi une option de réponse qui contient un texte positif, alors il échoue. \n\nSi l'utilisateur choisi une option de réponse qui contient un texte négatif, alors il devra ensuite corriger ce texte négatif en texte positif.",
+    },
+    {
+      question: "Comment gagner des points en faisant un Jeu ?",
+      answer: "Lorsque l'utilisateur arrive à la page pour corriger le texte négatif en texte positif, alors il peut gagner un maximum de 15 points selon le texte qu'il écrit. De plus, la barre de progression sur la page d'accueil s'incrémente.\n\nSi l'utilisateur écrit un texte négatif alors il ne gagne aucun point.",
+    },
+    {
+      question: "Pouvons-nous accumuler plusieurs points en effectuant plusieurs fois le même Jeu ?",
+      answer: "Non, il n'est possible de gagner qu'un nombre de points limite, même en effectuant le même Jeu plusieurs fois.",
+    },
+    {
+      question: "Comment puis-je me déconnecter ?",
+      answer: "Pour vous déconnecter, vous pouvez cliquer sur 'Mon Compte', puis, vous cliquez sur 'Déconnexion'.",
+    },
+    {
+      question: "Comment puis-je supprimer mon compte ?",
+      answer: "Pour vous déconnecter, vous pouvez cliquer sur 'Mon Compte', puis, vous cliquez sur 'Supprimer Mon Compte'.",
+    },
+    {
       question: "Comment puis-je réinitialiser mon mot de passe ?",
-      answer:
-        "Pour réinitialiser votre mot de passe, vous pouvez accéder à l'écran de connexion et sélectionner l'option 'Mot de passe oublié'. Suivez les instructions pour réinitialiser votre mot de passe.",
-    },
-    {
-      question: "Comment puis-je mettre à jour mes informations de profil ?",
-      answer:
-        "Pour mettre à jour vos informations de profil, accédez à l'écran 'Compte' et sélectionnez l'option 'Modifier le profil'. Entrez les nouvelles informations et appuyez sur 'Valider' pour enregistrer les modifications.",
-    },
-    {
-      question: "Quels sont les avantages de la création d'un compte ?",
-      answer:
-        "La création d'un compte vous permet de personnaliser votre expérience, de suivre votre progression dans les quiz et de bénéficier d'autres fonctionnalités exclusives.",
+      answer: "Pour réinitialiser votre mot de passe, vous pouvez cliquer sur 'Mot de passe oublié' lors de la connexion, puis, vous suivez les instructions pour réinitialiser votre mot de passe.",
     },
     {
       question: "Comment puis-je contacter le support client ?",
-      answer:
-        "Vous pouvez contacter notre support client en envoyant un e-mail à support@example.com ou en utilisant le formulaire de contact disponible sur la page 'Aide'.",
+      answer: "Vous pouvez contacter notre support client en envoyant un e-mail à nagihan.afsar@edu.ece.fr ou en utilisant le formulaire de contact disponible sur la page 'Aide'.",
     },
     {
       question: "Où puis-je trouver la documentation complète de l'application ?",
-      answer:
-        "La documentation complète de l'application est disponible dans la section 'Liens vers la documentation' de la page 'Aide'. Vous y trouverez des guides détaillés sur l'utilisation de l'application.",
+      answer: "La documentation complète de l'application est disponible dans la section 'Liens vers la documentation' de la page 'Aide'. Vous y trouverez des guides détaillés sur l'utilisation de l'application.",
     },
     {
-      question: "Comment puis-je signaler un problème ou donner un feedback ?",
-      answer:
-        "Vous pouvez signaler un problème en utilisant l'option de feedback sur la page 'Aide'. Nous apprécions vos commentaires et travaillerons à résoudre tout problème signalé.",
+      question: "Où puis-je trouver les conditions d'utilisation et la politique de confidentialité ? ?",
+      answer: "Les conditions d'utilisation et la politique de confidentialité sont disponibles dans la section 'Conditions d'utilisation & Politique de confidentialité' de la page 'Aide'.",
     },
   ];
 
