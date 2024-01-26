@@ -80,7 +80,7 @@ const Navigation = () => {
               headerRight: () => (
                 <View style={{ flexDirection: 'row', marginRight: 10}}>
                   <TouchableOpacity
-                    onPress={() => { navigation.navigate('AccountScreen'); }}
+                    onPress={() => { navigation.navigate('Account'); }}
                     style={{ marginRight: 15 }}>
                     <Ionicons name="person-outline" size={24} color="white" />
                   </TouchableOpacity>
@@ -118,11 +118,8 @@ const Navigation = () => {
             <Stack.Screen name="JeuxScreen" component={JeuxScreen} />
             <Stack.Screen name="JeuxStack" component={JeuxStack} />
 
-            <Stack.Screen name="AccountScreen" component={AccountScreen} />   
-            <Stack.Screen name="AccountStack" component={AccountStack} />        
-            
-            <Stack.Screen name="AideScreen" component={AideScreen} />
-            <Stack.Screen name="AideStack" component={AideStack} />
+            <Stack.Screen name="Account" component={AccountScreen} initialParams={{ username, email }} options={{ headerShown: false }}/>
+            <Stack.Screen name="Aide" component={AideScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Faq" component={FaqScreen} />
             <Stack.Screen name="Conditions" component={ConditionsScreen}  />
           </>

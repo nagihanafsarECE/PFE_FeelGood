@@ -1,19 +1,21 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 import AccueilScreen from '../AccueilScreen/AccueilScreen';
 import ActualitesScreen from '../ActualitesScreen/ActualitesScreen';
 import QuizzScreen from '../QuizzScreen/QuizzScreen';
 import JeuxStack from '../JeuxScreen/JeuxStack';
-import AccountStack from '../AccountScreen/AccountStack';
-import AideStack from '../AideScreen/AideStack';
+import AccountScreen from '../AccountScreen/AccountScreen';
+import AideScreen from '../AideScreen/AideScreen';
 
 
 const Tab = createBottomTabNavigator();
 
 const HomeScreen = ({ route }) => {
   const { username, email } = route.params;
+  const navigation = useNavigation();
 
   return (
     <Tab.Navigator
@@ -46,8 +48,8 @@ const HomeScreen = ({ route }) => {
       <Tab.Screen name="Quiz" component={QuizzScreen} options={{ headerShown: false }}/>
       <Tab.Screen name="Jeux" component={JeuxStack} options={{ headerShown: false }}/>
       <Tab.Screen name="Actualités" component={ActualitesScreen} options={{ headerShown: false }}/>
-      <Tab.Screen name="Account" component={AccountStack} initialParams={{ username, email }} options={{ headerShown: false }}/>
-      <Tab.Screen name="Aide" component={AideStack} options={{ headerShown: false }}/>
+      <Tab.Screen name="Account" component={AccountScreen} initialParams={{ username, email }} options={{ headerShown: false }}/>
+      <Tab.Screen name="Aide" component={AideScreen} options={{ headerShown: false }}/>
     </Tab.Navigator>
     
   );
