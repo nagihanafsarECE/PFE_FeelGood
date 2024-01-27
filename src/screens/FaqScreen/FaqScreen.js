@@ -2,6 +2,10 @@ import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { faqStyles, styles } from '../../styles/styles';
 import {LinearGradient} from 'expo-linear-gradient';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+
 
 const FaqScreen = ({ navigation }) => {
   const faqData = [
@@ -59,6 +63,9 @@ const FaqScreen = ({ navigation }) => {
     <LinearGradient
       colors={['#9999FF', '#9966FF', '#6600CC']}
       style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.button}>
+        <Ionicons name="arrow-back" size={24} color="white" />
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={faqStyles.container}>
         {faqData.map((faqItem, index) => (
           <View key={index} style={faqStyles.faqItem}>
@@ -72,3 +79,4 @@ const FaqScreen = ({ navigation }) => {
 }
 
 export default FaqScreen;
+

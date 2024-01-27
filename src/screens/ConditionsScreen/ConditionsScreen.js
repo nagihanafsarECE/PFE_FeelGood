@@ -1,13 +1,17 @@
 import React from 'react';
-import { Text, View, ScrollView } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { conditionsStyles, styles } from '../../styles/styles';
 import {LinearGradient} from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 const ConditionsScreen = ({ navigation }) => {
   return (
     <LinearGradient
       colors={['#9999FF', '#9966FF', '#6600CC']}
       style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.button}>
+        <Ionicons name="arrow-back" size={24} color="white" />
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={conditionsStyles.container}>
       <View style={conditionsStyles.sectionContainer}>
         <Text style={conditionsStyles.sectionTitle}>Conditions d'utilisation </Text>

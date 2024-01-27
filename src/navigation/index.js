@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {View, ActivityIndicator, TouchableOpacity} from 'react-native';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import {Auth, Hub} from 'aws-amplify';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
+import { Auth, Hub } from 'aws-amplify';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import SignInScreen from '../screens/SignInScreen';
@@ -37,7 +37,7 @@ const Navigation = () => {
 
   const checkUser = async () => {
     try {
-      const authUser = await Auth.currentAuthenticatedUser({bypassCache: true});
+      const authUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
       setUser(authUser);
     } catch (e) {
       setUser(null);
@@ -61,7 +61,7 @@ const Navigation = () => {
 
   if (user === undefined) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator />
       </View>
     );
@@ -74,54 +74,44 @@ const Navigation = () => {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            initialParams={{ username: user.username, email: user.attributes.email }}
+            initialParams={{ username: user?.username, email: user?.attributes?.email }}
             options={({ navigation }) => ({
               title: 'Feel Good.',
               headerRight: () => (
-                <View style={{ flexDirection: 'row', marginRight: 10}}>
+                <View style={{ flexDirection: 'row', marginRight: 10 }}>
                   <TouchableOpacity
                     onPress={() => { navigation.navigate('Account'); }}
                     style={{ marginRight: 15 }}>
                     <Ionicons name="person-outline" size={24} color="white" />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => { 
-                      navigation.navigate('Aide'); }}>
+                    onPress={() => {
+                      navigation.navigate('Aide');
+                    }}>
                     <Ionicons name="help-circle-outline" size={24} color="white" />
                   </TouchableOpacity>
                 </View>
               ),
             })}
           />
-
-          /*<Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            initialParams={{ username: user.username, email: user.attributes.email }}
-            options={({ navigation }) => ({
-              header: () => <CustomHeader navigation={navigation} />,
-            })}
-          />*/
-
-   
         ) : (
           <>
-            <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name="NewPassword" component={NewPasswordScreen} options={{ headerShown: false }}/>
-            
+            <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="NewPassword" component={NewPasswordScreen} options={{ headerShown: false }} />
+
             <Stack.Screen name="Accueil" component={AccueilScreen} />
             <Stack.Screen name="Actualités" component={ActualitesScreen} />
             <Stack.Screen name="QuizzScreen" component={QuizzScreen} />
             <Stack.Screen name="JeuxScreen" component={JeuxScreen} />
             <Stack.Screen name="JeuxStack" component={JeuxStack} />
 
-            <Stack.Screen name="Account" component={AccountScreen} initialParams={{ username, email }} options={{ headerShown: false }}/>
-            <Stack.Screen name="Aide" component={AideScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name="Account" component={AccountScreen} initialParams={{ username: null, email: null }} options={{ headerShown: false }} />
+            <Stack.Screen name="Aide" component={AideScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Faq" component={FaqScreen} />
-            <Stack.Screen name="Conditions" component={ConditionsScreen}  />
+            <Stack.Screen name="Conditions" component={ConditionsScreen} />
           </>
         )}
       </Stack.Navigator>
