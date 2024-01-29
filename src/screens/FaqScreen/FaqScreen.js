@@ -63,10 +63,10 @@ const FaqScreen = ({ navigation }) => {
     <LinearGradient
       colors={['#9999FF', '#9966FF', '#6600CC']}
       style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.button}>
+      <ScrollView contentContainerStyle={faqStyles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.button, { marginBottom: 20, alignSelf: 'flex-start'  }]}>
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
-      <ScrollView contentContainerStyle={faqStyles.container}>
         {faqData.map((faqItem, index) => (
           <View key={index} style={faqStyles.faqItem}>
             <Text style={faqStyles.question}>{faqItem.question}</Text>

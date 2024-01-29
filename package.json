@@ -42,7 +42,8 @@
     "react-native-screens": "^3.29.0",
     "react-native-svg": "^14.1.0",
     "react-native-tab-view": "^3.5.2",
-    "react-navigation": "^5.0.0"
+    "react-navigation": "^5.0.0",
+    "expo-mail-composer": "~12.3.0"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^0.9.0",

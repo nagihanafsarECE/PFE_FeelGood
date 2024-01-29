@@ -9,10 +9,10 @@ const ConditionsScreen = ({ navigation }) => {
     <LinearGradient
       colors={['#9999FF', '#9966FF', '#6600CC']}
       style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.button}>
+      <ScrollView contentContainerStyle={conditionsStyles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.button, { marginBottom: 20, alignSelf: 'flex-start'  }]}>
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
-      <ScrollView contentContainerStyle={conditionsStyles.container}>
       <View style={conditionsStyles.sectionContainer}>
         <Text style={conditionsStyles.sectionTitle}>Conditions d'utilisation </Text>
         <Text style={conditionsStyles.sectionText}>

@@ -107,10 +107,11 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
         >
         <View style={styless.container}>
         <TextInput
-            style={styles.input}
+            style={[styles.input, { height: 100 }]}
             placeholder="Texte"
             value={sentence}
             onChangeText={(text) => setSentence(text)}
+            multiline
         />
         <TouchableOpacity
             style={styles.buttonContainer}

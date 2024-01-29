@@ -3,6 +3,7 @@ import { Text, View, TouchableOpacity, Modal, Linking } from 'react-native';
 import { styles, aideStyles } from '../../styles/styles';
 import {LinearGradient} from 'expo-linear-gradient';
 
+
 const AideScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState({ title: '', description: '', link: '' });
@@ -19,6 +20,8 @@ const AideScreen = ({ navigation }) => {
       navigation.navigate('Faq');
     } else if (title === 'Conditions d\'utilisation et politique de confidentialité') {
       navigation.navigate('Conditions');
+    } else if (title === 'Coordonnées du support client') {
+      navigation.navigate('EmailForm');
     } else {
       // Vérifier si le titre est "Lien vers la documentation"
       const shouldShowDescription = title !== 'Lien vers la documentation';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ImageBackground, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Auth, API, graphqlOperation } from 'aws-amplify';
 import { listQJeus, listAJeus, listQJeuAJeus, listTJeus, listUsers, listJeuHistories } from '../../graphql/queries';
 import { quizStyles, styles } from '../../styles/styles';
@@ -211,10 +211,17 @@ const JeuxScreen = () => {
           {selectedAnswer !== null ? (
             selectedAnswer === questions[questionIndex]?.qJeuAcceptedAJeuId ? (
               <>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.container}
+                >
                 <SentimentAnalysisComponent selectedTheme={selectedTheme}/>
                 <TouchableOpacity style={styles.buttonContainer} onPress={handleResetTheme}>
                   <Text style={styles.buttonText}>Select Theme</Text>
                 </TouchableOpacity>
+                </KeyboardAvoidingView>
+                </TouchableWithoutFeedback>
               </>
             ) : (
               <>
