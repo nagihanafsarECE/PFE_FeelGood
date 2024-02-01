@@ -87,5 +87,5 @@ def analyze_sentiment_and_translate():
 
 # Run the Flask app on port 3002 when executed directly
 if __name__ == "__main__":
-    app.run(host="192.168.1.30", port=3002)
+    app.run(host="10.5.17.112", port=3002)
     

@@ -1,3 +1,11 @@
+/**
+ * JeuxScreen component represents the screen for playing games (Jeux).
+ * It allows users to select a theme and answer quiz questions.
+ * The component uses Amplify for authentication and GraphQL for data fetching and mutations.
+ * It includes features such as fetching themes, questions, and answers, handling answer selections,
+ * displaying quiz content, and resetting the quiz or selecting a new theme.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, ImageBackground, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Auth, API, graphqlOperation } from 'aws-amplify';
@@ -20,12 +28,14 @@ const JeuxScreen = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
 
+  // Theme backgrounds for different theme IDs
   const themeBackgrounds = {
-    "74fd62e0-0e26-4db2-9b3a-b95188d90575": require('../../../assets/images/Feel__Good.png'),
+    "74fd62e0-0e26-4db2-9b3a-b95188d90575": require('../../../assets/images/jeu.png'),
     "b856d0d3-21f7-4887-b560-d588f24b7cbd": require('../../../assets/images/influenceuse.png'),
     "55edae68-e4ce-4f52-bcd8-c34c5b5bd6e6": require('../../../assets/images/footballeur.png'),
   };
 
+  // Fetch themes when the component mounts
   useEffect(() => {
     const fetchThemes = async () => {
       try {
@@ -40,6 +50,7 @@ const JeuxScreen = () => {
     fetchThemes();
   }, []);
 
+  // Fetch questions and answers when a theme is selected
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,7 +67,7 @@ const JeuxScreen = () => {
         const questionAnswersResponse = await API.graphql(graphqlOperation(listQJeuAJeus));
         setQuestionAnswers(questionAnswersResponse.data.listQJeuAJeus.items);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Er\ror fetching data:', error);
       }
     };
 
@@ -65,6 +76,7 @@ const JeuxScreen = () => {
     }
   }, [selectedTheme]);
 
+  // Get answers for the current question
   const getAnswersForQuestion = () => {
     const currentQuestionId = questions[questionIndex]?.id;
     const answersForQuestion = questionAnswers
@@ -89,6 +101,7 @@ const JeuxScreen = () => {
     return answersForQuestion;
   };
   
+  // Get answers for the current question
   const handleAnswerSelection = async (ajeuId) => {
     const currentQuestion = questions[questionIndex];
     const isCorrectAnswer = currentQuestion.qJeuAcceptedAJeuId === ajeuId;
@@ -125,7 +138,7 @@ const JeuxScreen = () => {
     }
   };
   
-
+  // Reset quiz state
   const handleResetQuiz = () => {
     setQuizCompleted(false);
     setQuestionIndex(0);
@@ -133,6 +146,7 @@ const JeuxScreen = () => {
     setSelectedAnswer(null);
   };
 
+  // Reset theme and quiz state
   const handleResetTheme = () => {
     setQuizCompleted(false);
     setQuestionIndex(0);
@@ -141,7 +155,7 @@ const JeuxScreen = () => {
     setSelectedTheme(null); 
   };
 
-
+  // Render quiz content or theme selection
   const renderQuizContent = () => {
     if (selectedTheme) {
       const currentQuestion = questions[questionIndex];
@@ -172,6 +186,7 @@ const JeuxScreen = () => {
         </View>
       );
     } else {
+      // Display theme selection
       return (
         <FlatList
           data={themes}
@@ -210,6 +225,7 @@ const JeuxScreen = () => {
         <>
           {selectedAnswer !== null ? (
             selectedAnswer === questions[questionIndex]?.qJeuAcceptedAJeuId ? (
+              // Display sentiment analysis component for correct answers
               <>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                 <KeyboardAvoidingView
@@ -224,6 +240,7 @@ const JeuxScreen = () => {
                 </TouchableWithoutFeedback>
               </>
             ) : (
+              // Display message and options for incorrect answers
               <>
                 <Text style={quizStyles.titleQuiz}>
                   Mauvaise réponse{'\n'}Réessayez !
@@ -239,6 +256,7 @@ const JeuxScreen = () => {
           ) : null}
         </>
       ) : (
+        // Render quiz content or theme selection
         renderQuizContent()
       )}
     </LinearGradient>

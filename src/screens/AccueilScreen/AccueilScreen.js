@@ -1,3 +1,10 @@
+/**
+ * AccueilScreen displays user statistics including quiz progress and jeu points.
+ * It utilizes AWS Amplify API for fetching and subscribing to user-related data.
+ * The component includes progress bars for visual representation of quiz completion
+ * and jeu points accumulation. It also features animations for a smoother user experience.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import * as Progress from 'react-native-progress';

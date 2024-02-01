@@ -1,3 +1,10 @@
+/**
+ * Navigation component defines the navigation structure of the app using React Navigation.
+ * It includes authentication checks to conditionally render different screens for signed-in and signed-out users.
+ * The stack navigator handles authentication-related screens and the main app navigation is managed by a bottom tab navigator.
+ * User authentication state is monitored using the Amplify Hub.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
@@ -27,8 +34,6 @@ import JeuxStack from '../screens/JeuxScreen/JeuxStack';
 import AccountStack from '../screens/AccountScreen/AccountStack';
 import AideStack from '../screens/AideScreen/AideStack';
 
-import CustomHeader from '../components/CustomHeader';
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -37,20 +42,25 @@ const Navigation = () => {
 
   const checkUser = async () => {
     try {
+      // Check if there is an authenticated user
       const authUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
       setUser(authUser);
     } catch (e) {
+      // Handle the case where there is no authenticated user
       setUser(null);
     }
   };
 
   useEffect(() => {
+    // Check user authentication status on component mount
     checkUser();
   }, []);
 
   useEffect(() => {
+    // Listen for authentication events using Amplify Hub
     const listener = data => {
       if (data.payload.event === 'signIn' || data.payload.event === 'signOut') {
+        // Update user state upon authentication events
         checkUser();
       }
     };
@@ -60,6 +70,7 @@ const Navigation = () => {
   }, []);
 
   if (user === undefined) {
+    // Show loading indicator while checking authentication status
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator />
@@ -71,6 +82,7 @@ const Navigation = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#9999FF' }, headerTintColor: '#fff' }}>
         {user ? (
+          // Render HomeScreen for authenticated users
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -95,6 +107,7 @@ const Navigation = () => {
             })}
           />
         ) : (
+          // Render authentication-related screens for signed-out users
           <>
             <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }} />
             <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />

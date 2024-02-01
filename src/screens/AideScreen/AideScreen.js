@@ -1,3 +1,9 @@
+/**
+ * AideScreen provides information and links for user assistance.
+ * It includes options like FAQ, contacting customer support, documentation link, and terms and privacy policy.
+ * The modal displays detailed information when an option is selected.
+ */
+
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Modal, Linking } from 'react-native';
 import { styles, aideStyles } from '../../styles/styles';
@@ -10,8 +16,8 @@ const AideScreen = ({ navigation }) => {
 
   const data = [
     { title: 'Foire aux questions (FAQ)', description: 'Incluez une liste de questions fréquemment posées avec des réponses détaillées pour aider les utilisateurs à résoudre les problèmes courants.' },
-    { title: 'Coordonnées du support client', description: 'nagihan.afsar@edu.ece.fr' },
-    { title: 'Lien vers la documentation', link: 'https://www.google.com' },
+    { title: 'Contacter le support client', description: 'nagihan.afsar@edu.ece.fr' },
+    { title: 'Lien vers la documentation', link: 'https://drive.google.com/drive/folders/1GF1GC9m0RQeWPuIs1Ik1e2B-rYBR4p6U' },
     { title: 'Conditions d\'utilisation et politique de confidentialité', description: '' },
   ];
 
@@ -20,10 +26,10 @@ const AideScreen = ({ navigation }) => {
       navigation.navigate('Faq');
     } else if (title === 'Conditions d\'utilisation et politique de confidentialité') {
       navigation.navigate('Conditions');
-    } else if (title === 'Coordonnées du support client') {
+    } else if (title === 'Contacter le support client') {
       navigation.navigate('EmailForm');
     } else {
-      // Vérifier si le titre est "Lien vers la documentation"
+      // Check if the title is "Lien vers la documentation"
       const shouldShowDescription = title !== 'Lien vers la documentation';
   
       setSelectedInfo({ title, description, link, shouldShowDescription });

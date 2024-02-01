@@ -1,3 +1,9 @@
+/**
+ * ActualitesScreen displays the latest technology news fetched from the NewsAPI.
+ * It uses the NewsAPI to fetch top headlines in the technology category.
+ * The news items are rendered using a FlatList with a custom news item component.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image } from 'react-native';
 import * as Progress from 'react-native-progress';

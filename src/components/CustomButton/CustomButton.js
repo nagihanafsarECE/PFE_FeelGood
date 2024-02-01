@@ -1,3 +1,10 @@
+/**
+ * CustomButton component is a reusable button component in React Native.
+ * It accepts props such as onPress function, button text, type (PRIMARY, SECONDARY, TERTIARY),
+ * background color (bgColor), and foreground color (fgColor). The styles are dynamically
+ * applied based on the provided props, allowing for flexibility in button appearance.
+ */
+
 import React from 'react';
 import {View, Text, StyleSheet, Pressable} from 'react-native';
 

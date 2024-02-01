@@ -1,3 +1,7 @@
+/**
+ * FaqScreen displays a list of frequently asked questions (FAQ) and their corresponding answers.
+ */
+
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { faqStyles, styles } from '../../styles/styles';
@@ -6,9 +10,13 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 
-
 const FaqScreen = ({ navigation }) => {
+  // Data containing FAQ items with questions and answers
   const faqData = [
+    {
+      question: "En cas de cyberharcèlement, comment puis-je signaler et obtenir de l'aide? ?",
+      answer: "Pour signaler un cas de cyberharcèlement, veuillez contacter le 3018.",
+    },
     {
       question: "Comment fonctionne le Quiz ?",
       answer: "Une fois connecté à l'application, l'utilisateur clique à la section 'Quiz'. À partir de là, il sélectionne un thème initial, puis répond aux questions en choisissant les options correspondantes.",
@@ -64,6 +72,7 @@ const FaqScreen = ({ navigation }) => {
       colors={['#9999FF', '#9966FF', '#6600CC']}
       style={styles.container}>
       <ScrollView contentContainerStyle={faqStyles.container}>
+        {/* Button to navigate back to the previous screen */}
       <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.button, { marginBottom: 20, alignSelf: 'flex-start'  }]}>
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>

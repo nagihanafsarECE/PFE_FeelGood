@@ -1,9 +1,14 @@
+/**
+ * HomeScreen represents the main screen with a bottom tab navigation.
+ * It includes tabs for Accueil (Home), Quiz, Jeux (Games), Actualités (News), Account, and Aide (Help).
+ * Each tab is associated with a specific screen component.
+ */
+
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native';
-
 
 import AccueilScreen from '../AccueilScreen/AccueilScreen';
 import ActualitesScreen from '../ActualitesScreen/ActualitesScreen';
@@ -50,6 +55,7 @@ const HomeScreen = ({ route }) => {
         tabStyle: { justifyContent: 'center' },
       }}
     >
+      {/* Tab for Accueil */}
       <Tab.Screen
         name="Accueil"
         component={AccueilScreen}
@@ -62,6 +68,7 @@ const HomeScreen = ({ route }) => {
           ),
         }}
       />
+      {/* Tab for Quiz */}
       <Tab.Screen
         name="Quiz"
         component={QuizzScreen}
@@ -74,6 +81,7 @@ const HomeScreen = ({ route }) => {
           ),
         }}
       />
+      {/* Tab for Jeux */}
       <Tab.Screen
         name="Jeux"
         component={JeuxStack}
@@ -86,6 +94,7 @@ const HomeScreen = ({ route }) => {
           ),
         }}
       />
+      {/* Tab for Actualités */}
       <Tab.Screen
         name="Actualités"
         component={ActualitesScreen}
@@ -98,6 +107,7 @@ const HomeScreen = ({ route }) => {
           ),
         }}
       />
+      {/* Tab for Account */}
       <Tab.Screen
         name="Account"
         component={AccountStack}
@@ -112,6 +122,7 @@ const HomeScreen = ({ route }) => {
           ),
         }}
       />
+      {/* Tab for Aide */}
       <Tab.Screen
         name="Aide"
         component={AideStack}

@@ -1,3 +1,7 @@
+/**
+ * ConditionsScreen displays the terms of use and privacy policy for the application.
+ */
+
 import React from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { conditionsStyles, styles } from '../../styles/styles';
@@ -10,9 +14,12 @@ const ConditionsScreen = ({ navigation }) => {
       colors={['#9999FF', '#9966FF', '#6600CC']}
       style={styles.container}>
       <ScrollView contentContainerStyle={conditionsStyles.container}>
+      {/* Back button to navigate back */}
       <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.button, { marginBottom: 20, alignSelf: 'flex-start'  }]}>
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
+
+      {/* Terms of Use Section */}
       <View style={conditionsStyles.sectionContainer}>
         <Text style={conditionsStyles.sectionTitle}>Conditions d'utilisation </Text>
         <Text style={conditionsStyles.sectionText}>
@@ -29,6 +36,7 @@ const ConditionsScreen = ({ navigation }) => {
         </Text>
       </View>
 
+      {/* Privacy Policy Section */}
       <View style={conditionsStyles.sectionContainer}>
         <Text style={conditionsStyles.sectionTitle}>Politique de confidentialité </Text>
         <Text style={conditionsStyles.sectionText}>

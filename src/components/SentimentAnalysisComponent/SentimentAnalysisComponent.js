@@ -1,3 +1,11 @@
+/**
+ * SentimentAnalysisComponent is a React Native component that analyzes sentiment of a given sentence.
+ * It communicates with a sentiment analysis server and updates user and game history data in the AWS Amplify backend.
+ * The component includes a text input for user input, a button to trigger sentiment analysis, and displays the result
+ * with a congratulatory message for positive sentiment, an encouragement to try again for negative sentiment, and
+ * the corresponding score. It also uses the Confetti component for positive sentiment celebration.
+ */
+
 import React, { useState, useRef } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { styles } from '../../styles/styles';
@@ -14,7 +22,8 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
 
   const analyzeSentiment = async () => {
     try {
-      const response = await fetch('http://192.168.1.30:3002/analyze_sentiment_and_translate', {
+      // Fetch sentiment analysis and translation results from the server
+      const response = await fetch('http://10.5.17.112:3002/analyze_sentiment_and_translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,11 +40,11 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
       displayResultMessage(data.sentiment);
       setPoints(data.points);
 
-      // Mettez à jour les points dans la base de données
+      // Update points in the database
       const user = await Auth.currentAuthenticatedUser();
       const userId = user.attributes.sub;
 
-      // Effectuer une opération de lecture pour obtenir l'ID de JeuHistory
+      // Perform a read operation to get the JeuHistory ID
       const getJeuHistoryResponse = await API.graphql(graphqlOperation(listJeuHistories, {
         filter: {
           userID: { eq: userId },
@@ -43,22 +52,21 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
         }
       }));
 
-      // Supposons que la réponse contient un seul élément correspondant (ce qui devrait être le cas si l'entrée est unique)
       const jeuHistoryItem = getJeuHistoryResponse.data.listJeuHistories.items[0];
 
       if (jeuHistoryItem) {
         const jeuHistoryId = jeuHistoryItem.id;
 
-        // Maintenant, vous pouvez utiliser jeuHistoryId pour mettre à jour l'élément
+        // Use jeuHistoryId to update the item
         await API.graphql(graphqlOperation(updateJeuHistory, {
           input: { id: jeuHistoryId, jeuId: selectedTheme, userID: userId, pts: data.points }
         }));
       } else {
         console.error('JeuHistory non trouvé pour les critères donnés.');
-        // Gérez le cas où l'élément n'est pas trouvé
+        // Handle the case where the item is not found
       }
 
-      // Effectuer une opération de lecture pour obtenir tous les éléments de JeuHistory correspondant au userID
+      // Perform a read operation to get all JeuHistory items matching the userID
       const getJeuHistoriesResponse = await API.graphql(graphqlOperation(listJeuHistories, {
         filter: {
           userID: { eq: userId }
@@ -67,10 +75,10 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
 
       const jeuHistories = getJeuHistoriesResponse.data.listJeuHistories.items;
 
-      // Calculer la somme des pts
+      // Calculate the sum of points
       const totalPoints = jeuHistories.reduce((sum, jeuHistory) => sum + jeuHistory.pts, 0);
 
-      // Mettre à jour jeuPoints dans la base de données avec la somme calculée
+      // Update jeuPoints in the database with the calculated sum
       await API.graphql(graphqlOperation(updateUser, {
         input: { id: userId, jeuPoints: totalPoints }
       }));

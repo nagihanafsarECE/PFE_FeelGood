@@ -1,3 +1,9 @@
+/**
+ * QuizzScreen component represents the screen for taking quizzes. It allows users to select a theme
+ * and answer a series of questions related to that theme. The component uses AWS Amplify for data fetching
+ * and mutations, and it displays a gradient background along with confetti animation when the quiz is completed.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
 import { Auth, API, graphqlOperation } from 'aws-amplify';
@@ -22,8 +28,7 @@ const QuizzScreen = () => {
   const [quizCount, setQuizCount] = useState(0);
   const nbTotalQuestions = questions.filter(question => question.themeID === selectedTheme).length;
 
-
-
+  // Theme background images
   const themeBackgrounds = {
     "d64b96c0-f0df-4e60-bd6a-4e1cf05b14b6": require('../../../assets/images/securite.png'),
     "6562a67d-947a-47b1-91b2-4492bb0e783b": require('../../../assets/images/prevention.png'),
@@ -36,6 +41,7 @@ const QuizzScreen = () => {
   };
 
   useEffect(() => {
+    // Fetch themes from GraphQL API
     const fetchThemes = async () => {
       try {
         const response = await API.graphql(graphqlOperation(listThemes));
@@ -49,6 +55,7 @@ const QuizzScreen = () => {
   }, []);
 
   useEffect(() => {
+    // Fetch questions, answers, and questionAnswers based on selectedTheme
     const fetchData = async () => {
       try {
         const questionsResponse = await API.graphql(graphqlOperation(listQuestions, {
@@ -73,6 +80,7 @@ const QuizzScreen = () => {
     }
   }, [selectedTheme]);
 
+  // Update quizCount
   const updateQuizCount = async () => {
     try {
       const user = await Auth.currentAuthenticatedUser();

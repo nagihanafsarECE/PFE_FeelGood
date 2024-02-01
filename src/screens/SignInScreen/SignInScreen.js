@@ -1,9 +1,13 @@
+/**
+ * SignInScreen represents the screen where users can sign in.
+ * It includes a logo, input fields for username and password, and buttons for signing in, creating an account, and recovering a forgotten password.
+ */
+
 import React, {useState} from 'react';
 import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView, TextInput, Alert, TouchableOpacity } from 'react-native';
 import Logo from '../../../assets/images/FeelGood..png';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm, Controller} from 'react-hook-form';
 import {Auth} from 'aws-amplify';
@@ -21,6 +25,7 @@ const SignInScreen = () => {
     formState: {errors},
   } = useForm();
 
+  // Handle the sign-in process
   const onSignInPressed = async data => {
     if (loading) {
       return;
@@ -36,10 +41,12 @@ const SignInScreen = () => {
     setLoading(false);
   };
 
+  // Navigate to the forgot password screen
   const onForgotPasswordPressed = () => {
     navigation.navigate('ForgotPassword');
   };
 
+  // Navigate to the sign-up screen
   const onSignUpPress = () => {
     navigation.navigate('SignUp');
   };
@@ -58,43 +65,41 @@ const SignInScreen = () => {
 
         <CustomInput
           name="username"
-          placeholder="Username"
+          placeholder="Nom d'utilisateur"
           control={control}
-          rules={{required: 'Username is required'}}
+          rules={{required: 'Nom Utilisateur Obligatoire'}}
         />
 
         <CustomInput
           name="password"
-          placeholder="Password"
+          placeholder="Mot De Passe"
           secureTextEntry
           control={control}
           rules={{
-            required: 'Password is required',
+            required: 'Mot De Passe Obligatoire',
             minLength: {
               value: 3,
-              message: 'Password should be minimum 3 characters long',
+              message: 'Le Mot De Passe Doit Avoir Minimum 3 Caractères',
             },
           }}
         />
 
         <CustomButton
-          text={loading ? 'Loading...' : 'Sign In'}
+          text={loading ? 'Chargement...' : 'Se Connecter'}
           onPress={handleSubmit(onSignInPressed)}
         />
 
         <CustomButton
-          text="Forgot password?"
+          text="Créer Un Compte"
+          onPress={onSignUpPress}
+        />
+
+        <CustomButton
+          text="Mot De Passe Oublié ?"
           onPress={onForgotPasswordPressed}
           type="TERTIARY"
         />
-
-        <SocialSignInButtons />
-
-        <CustomButton
-          text="Don't have an account? Create one"
-          onPress={onSignUpPress}
-          type="TERTIARY"
-        />
+        
       </View>
       </ScrollView>
     </LinearGradient>
@@ -103,6 +108,8 @@ const SignInScreen = () => {
 
 const styles = StyleSheet.create({
   root: {
+    paddingTop: '20%',
+    paddingBottom: '30%',
     alignItems: 'center',
     padding: 20,
     /*backgroundColor: '#9999FF',*/

@@ -1,3 +1,10 @@
+/**
+ * AccountScreen displays user account information and provides options
+ * for signing out and deleting the user's account. It uses AWS Amplify Auth for
+ * authentication-related actions. The screen includes a linear gradient background
+ * for a visually appealing UI.
+ */
+
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { accountStyles, styles } from '../../styles/styles';
@@ -9,17 +16,19 @@ import {LinearGradient} from 'expo-linear-gradient';
 const AccountScreen = ({ navigation, route }) => {
   const { username, email } = route.params;
 
+  // Function to sign out the user
   const signOut = () => {
     Auth.signOut();
   };
 
+  // Function to handle account deletion
   const handleSupprimerCompte = async () => {
     try {
-      // Supprime le compte de l'utilisateur
+      // Delete the user's account
       const user = await Auth.currentAuthenticatedUser();
       await Auth.deleteUser(user);
 
-      // Déconnecte l'utilisateur
+      // Sign out the user after account deletion
       await Auth.signOut();
 
     } catch (error) {
@@ -34,20 +43,24 @@ const AccountScreen = ({ navigation, route }) => {
       style={styles.container}>
       <View style={styles.container}>
         <View>
+          {/* Display the username */}
           <View style={{marginBottom: 10}}>
           <Text style={accountStyles.DisplayName}>{username}</Text>
           </View>
+          {/* Display the user's email */}
           <View style={{marginBottom: 20}}>
           <Text style={accountStyles.DisplayEmail}>{email}</Text>
           </View>
         </View>
     
         <View>
+          {/* Button to sign out the user */}
           <TouchableOpacity
               style={styles.buttonContainer}
               onPress={signOut}>
               <Text style={styles.buttonText}>Déconnexion</Text>
           </TouchableOpacity>
+          {/* Button to handle account deletion */}
           <TouchableOpacity style={styles.buttonContainer} onPress={handleSupprimerCompte}>
             <Text style={{ color: 'red' , textAlign: 'center', fontSize: 18,}}>Supprimer le compte</Text>
           </TouchableOpacity>

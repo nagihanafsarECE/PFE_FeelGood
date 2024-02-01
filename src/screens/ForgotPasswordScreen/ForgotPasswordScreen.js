@@ -1,8 +1,14 @@
+/**
+ * ForgotPasswordScreen is a React Native screen that allows users to request a password reset.
+ * It utilizes AWS Amplify Auth for the forgotPassword functionality. Users provide their username,
+ * and upon successful submission, they are navigated to the NewPassword screen.
+ * The screen includes a linear gradient background and custom input and button components for a cohesive UI.
+ */
+
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, Alert} from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/core';
 import {useForm} from 'react-hook-form';
 import {Auth} from 'aws-amplify';
@@ -14,14 +20,17 @@ const ForgotPasswordScreen = () => {
 
   const onSendPressed = async data => {
     try {
+      // Request a password reset using the provided username
       await Auth.forgotPassword(data.username);
       navigation.navigate('NewPassword');
     } catch (e) {
+      // Handle any errors during the password reset request
       Alert.alert('Oops', e.message);
     }
   };
 
   const onSignInPress = () => {
+    // Navigate to the SignIn screen
     navigation.navigate('SignIn');
   };
 
@@ -31,21 +40,21 @@ const ForgotPasswordScreen = () => {
       style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.root}>
-          <Text style={styles.title}>Reset your password</Text>
+          <Text style={styles.title}>Nouveau Mot De Passe</Text>
 
           <CustomInput
             name="username"
             control={control}
-            placeholder="Username"
+            placeholder="Nom D'Utilisateur"
             rules={{
-              required: 'Username is required',
+              required: 'Nom Utilisateur Obligatoire',
             }}
           />
 
-          <CustomButton text="Send" onPress={handleSubmit(onSendPressed)} />
+          <CustomButton text="Envoyer" onPress={handleSubmit(onSendPressed)} />
 
           <CustomButton
-            text="Back to Sign in"
+            text="Retour A La Connexion"
             onPress={onSignInPress}
             type="TERTIARY"
           />

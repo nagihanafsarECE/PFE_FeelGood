@@ -1,3 +1,11 @@
+/**
+ * CustomInput component is a reusable input component in React Native using react-hook-form.
+ * It integrates with react-hook-form's Controller to manage form state, including validation.
+ * Props include control, name, rules, placeholder, and secureTextEntry for customization.
+ * Styling includes a bordered container with dynamic color based on validation errors,
+ * and an optional error message displayed in red when validation fails.
+ */
+
 import React from 'react';
 import {View, Text, TextInput, StyleSheet} from 'react-native';
 import {Controller} from 'react-hook-form';

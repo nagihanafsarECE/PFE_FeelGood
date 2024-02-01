@@ -1,8 +1,15 @@
+/**
+ * NewPasswordScreen represents the screen for updating the password
+ * after a user has initiated a forgot password process. It allows users to enter
+ * their username, verification code, and a new password.
+ * The component uses React Hook Form for managing form state and validation.
+ * It also uses AWS Amplify for authentication and displays a gradient background.
+ */
+
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, Alert} from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
 import {Auth} from 'aws-amplify';
@@ -13,6 +20,7 @@ const NewPasswordScreen = () => {
 
   const navigation = useNavigation();
 
+  // Handle form submission
   const onSubmitPressed = async data => {
     try {
       await Auth.forgotPasswordSubmit(data.username, data.code, data.password);
@@ -22,6 +30,7 @@ const NewPasswordScreen = () => {
     }
   };
 
+  // Navigate to the SignIn screen
   const onSignInPress = () => {
     navigation.navigate('SignIn');
   };
@@ -32,40 +41,40 @@ const NewPasswordScreen = () => {
       style={styles.container}>
       <ScrollView>
         <View style={styles.root}>
-          <Text style={styles.title}>Reset your password</Text>
+          <Text style={styles.title}>Mettre A Jour Le Mot De Passe</Text>
 
           <CustomInput
-            placeholder="Username"
+            placeholder="Nom d'Utilisateur"
             name="username"
             control={control}
-            rules={{required: 'Username is required'}}
+            rules={{required: 'Nom Utilisateur Obligatoire'}}
           />
 
           <CustomInput
             placeholder="Code"
             name="code"
             control={control}
-            rules={{required: 'Code is required'}}
+            rules={{required: 'Code Obligatoire'}}
           />
 
           <CustomInput
-            placeholder="Enter your new password"
+            placeholder="Entrez Le Nouveau Mot De Passe"
             name="password"
             control={control}
             secureTextEntry
             rules={{
-              required: 'Password is required',
+              required: 'Mot De Passe Obligatoire',
               minLength: {
                 value: 8,
-                message: 'Password should be at least 8 characters long',
+                message: 'Le Mot De Passe Doit Avoir Minimum 8 Caractères',
               },
             }}
           />
 
-          <CustomButton text="Submit" onPress={handleSubmit(onSubmitPressed)} />
+          <CustomButton text="Envoyer" onPress={handleSubmit(onSubmitPressed)} />
 
           <CustomButton
-            text="Back to Sign in"
+            text="Revenir Vers La Connexion"
             onPress={onSignInPress}
             type="TERTIARY"
           />
