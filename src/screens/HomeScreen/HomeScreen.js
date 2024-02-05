@@ -51,9 +51,6 @@ const HomeScreen = ({ route }) => {
         tabBarActiveTintColor: '#33CC00',
         tabBarInactiveTintColor: '#fff',
       })}
-      tabBarOptions={{
-        tabStyle: { justifyContent: 'center' },
-      }}
     >
       {/* Tab for Accueil */}
       <Tab.Screen
