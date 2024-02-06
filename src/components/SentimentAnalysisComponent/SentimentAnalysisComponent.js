@@ -8,7 +8,7 @@
 
 import React, { useState, useRef } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
-import { styles } from '../../styles/styles';
+import { styles, quizStyles } from '../../styles/styles';
 import { API, graphqlOperation, Auth } from 'aws-amplify';
 import { updateJeuHistory, updateUser } from '../../graphql/mutations';
 import { listJeuHistories } from '../../graphql/queries';
@@ -23,7 +23,7 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
   const analyzeSentiment = async () => {
     try {
       // Fetch sentiment analysis and translation results from the server
-      const response = await fetch('http://10.5.17.112:3002/analyze_sentiment_and_translate', {
+      const response = await fetch('http://10.5.25.68:3002/analyze_sentiment_and_translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,6 +114,9 @@ const SentimentAnalysisComponent = ({ selectedTheme }) => {
         style={styless.container}
         >
         <View style={styless.container}>
+        <View>
+            <Text style={quizStyles.titleQuiz}>Veuillez écrire un texte {'\n'} positif afin de remplacer le texte négatif</Text>
+        </View>
         <TextInput
             style={[styles.input, { height: 100 }]}
             placeholder="Texte"
